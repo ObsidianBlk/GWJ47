@@ -1,0 +1,457 @@
+[gd_scene load_steps=30 format=2]
+
+[ext_resource path="res://UI/GWJ47/Card.gd" type="Script" id=1]
+[ext_resource path="res://UI/GWJ47/WildCards/weird-art.png" type="Texture" id=2]
+[ext_resource path="res://UI/GWJ47/GWJ_Logo.png" type="Texture" id=3]
+[ext_resource path="res://UI/GWJ47/47-Theme-Symmetry.png" type="Texture" id=4]
+[ext_resource path="res://UI/GWJ47/WildCards/small-bag.png" type="Texture" id=5]
+[ext_resource path="res://UI/GWJ47/WildCards/not-twice.png" type="Texture" id=6]
+[ext_resource path="res://UI/GWJ47/GWJ47.gd" type="Script" id=7]
+
+[sub_resource type="DynamicFontData" id=1]
+font_path = "res://Theme/Fonts/OldSansBlack.ttf"
+
+[sub_resource type="DynamicFont" id=2]
+size = 148
+use_filter = true
+font_data = SubResource( 1 )
+
+[sub_resource type="StyleBoxEmpty" id=3]
+
+[sub_resource type="StyleBoxEmpty" id=4]
+
+[sub_resource type="StyleBoxEmpty" id=5]
+
+[sub_resource type="StyleBoxEmpty" id=6]
+
+[sub_resource type="StyleBoxEmpty" id=7]
+
+[sub_resource type="StyleBoxEmpty" id=8]
+
+[sub_resource type="StyleBoxEmpty" id=9]
+
+[sub_resource type="StyleBoxEmpty" id=10]
+
+[sub_resource type="StyleBoxEmpty" id=11]
+
+[sub_resource type="StyleBoxEmpty" id=12]
+
+[sub_resource type="StyleBoxEmpty" id=13]
+
+[sub_resource type="StyleBoxEmpty" id=14]
+
+[sub_resource type="StyleBoxEmpty" id=15]
+
+[sub_resource type="StyleBoxEmpty" id=16]
+
+[sub_resource type="StyleBoxEmpty" id=17]
+
+[sub_resource type="Animation" id=18]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("Background:self_modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Logo:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 0.945098, 0.388235, 0.298039, 1 ) ]
+}
+
+[sub_resource type="Animation" id=21]
+resource_name = "hide"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/path = NodePath("Background:self_modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.3, 0.5 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Logo:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.3 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 0.945098, 0.388235, 0.298039, 1 ), Color( 0.945098, 0.388235, 0.298039, 0 ) ]
+}
+tracks/2/type = "method"
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0.3 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [ false, false ],
+"method": "_ShowCards"
+} ]
+}
+
+[sub_resource type="Animation" id=20]
+resource_name = "idle_hidden"
+length = 0.1
+tracks/0/type = "value"
+tracks/0/path = NodePath("Logo:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 0.945098, 0.388235, 0.298039, 0 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Background:self_modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ) ]
+}
+tracks/2/type = "method"
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [ false, true ],
+"method": "_ShowCards"
+} ]
+}
+
+[sub_resource type="Animation" id=19]
+resource_name = "idle_shown"
+length = 0.1
+tracks/0/type = "value"
+tracks/0/path = NodePath("Background:self_modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Logo:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 0.945098, 0.388235, 0.298039, 1 ) ]
+}
+tracks/2/type = "method"
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [ true, true ],
+"method": "_ShowCards"
+} ]
+}
+
+[sub_resource type="Animation" id=22]
+resource_name = "show"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/path = NodePath("Background:self_modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.2 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Logo:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.2, 0.5 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 0.945098, 0.388235, 0.298039, 0 ), Color( 0.945098, 0.388235, 0.298039, 0 ), Color( 0.945098, 0.388235, 0.298039, 1 ) ]
+}
+tracks/2/type = "method"
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0.5 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [ true, false ],
+"method": "_ShowCards"
+} ]
+}
+
+[node name="GWJ47" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 7 )
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0.152941, 0.203922, 0.305882, 1 )
+
+[node name="Logo" type="MarginContainer" parent="."]
+modulate = Color( 0.945098, 0.388235, 0.298039, 1 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+custom_constants/margin_right = 24
+custom_constants/margin_left = 24
+
+[node name="JamPosition" type="HBoxContainer" parent="Logo"]
+margin_left = 24.0
+margin_right = 1256.0
+margin_bottom = 800.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LogoTex" type="TextureRect" parent="Logo/JamPosition"]
+margin_right = 614.0
+margin_bottom = 800.0
+size_flags_horizontal = 3
+texture = ExtResource( 3 )
+expand = true
+stretch_mode = 6
+
+[node name="Control" type="Control" parent="Logo/JamPosition"]
+margin_left = 618.0
+margin_right = 1232.0
+margin_bottom = 800.0
+size_flags_horizontal = 3
+
+[node name="NumPosition" type="HBoxContainer" parent="Logo"]
+margin_left = 24.0
+margin_right = 1256.0
+margin_bottom = 800.0
+
+[node name="Control" type="Control" parent="Logo/NumPosition"]
+margin_right = 614.0
+margin_bottom = 800.0
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Logo/NumPosition"]
+margin_left = 618.0
+margin_top = 312.0
+margin_right = 1232.0
+margin_bottom = 487.0
+size_flags_horizontal = 3
+custom_fonts/font = SubResource( 2 )
+text = "#47"
+align = 2
+
+[node name="JamInfo_Ref" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+custom_constants/margin_right = 24
+custom_constants/margin_top = 24
+custom_constants/margin_left = 24
+custom_constants/margin_bottom = 24
+
+[node name="HBoxContainer" type="HBoxContainer" parent="JamInfo_Ref"]
+margin_left = 24.0
+margin_top = 24.0
+margin_right = 1256.0
+margin_bottom = 776.0
+
+[node name="Spacer" type="Control" parent="JamInfo_Ref/HBoxContainer"]
+margin_right = 614.0
+margin_bottom = 752.0
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="JamInfo_Ref/HBoxContainer"]
+margin_left = 618.0
+margin_right = 1232.0
+margin_bottom = 752.0
+size_flags_horizontal = 3
+
+[node name="Theme_Ref" type="Control" parent="JamInfo_Ref/HBoxContainer/VBoxContainer"]
+margin_right = 614.0
+margin_bottom = 248.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Spacer" type="Control" parent="JamInfo_Ref/HBoxContainer/VBoxContainer"]
+margin_top = 252.0
+margin_right = 614.0
+margin_bottom = 500.0
+size_flags_vertical = 3
+
+[node name="Cards" type="HBoxContainer" parent="JamInfo_Ref/HBoxContainer/VBoxContainer"]
+margin_top = 504.0
+margin_right = 614.0
+margin_bottom = 752.0
+size_flags_vertical = 3
+
+[node name="Card1_Ref" type="Button" parent="JamInfo_Ref/HBoxContainer/VBoxContainer/Cards"]
+margin_right = 202.0
+margin_bottom = 248.0
+focus_neighbour_right = NodePath("../Card2_Ref")
+focus_next = NodePath("../Card2_Ref")
+size_flags_horizontal = 3
+custom_styles/hover = SubResource( 3 )
+custom_styles/pressed = SubResource( 4 )
+custom_styles/focus = SubResource( 5 )
+custom_styles/disabled = SubResource( 6 )
+custom_styles/normal = SubResource( 7 )
+flat = true
+
+[node name="Card2_Ref" type="Button" parent="JamInfo_Ref/HBoxContainer/VBoxContainer/Cards"]
+margin_left = 206.0
+margin_right = 408.0
+margin_bottom = 248.0
+focus_neighbour_left = NodePath("../Card1_Ref")
+focus_neighbour_right = NodePath("../Card3_Ref")
+focus_next = NodePath("../Card3_Ref")
+focus_previous = NodePath("../Card1_Ref")
+size_flags_horizontal = 3
+custom_styles/hover = SubResource( 8 )
+custom_styles/pressed = SubResource( 9 )
+custom_styles/focus = SubResource( 10 )
+custom_styles/disabled = SubResource( 11 )
+custom_styles/normal = SubResource( 12 )
+flat = true
+
+[node name="Card3_Ref" type="Button" parent="JamInfo_Ref/HBoxContainer/VBoxContainer/Cards"]
+margin_left = 412.0
+margin_right = 614.0
+margin_bottom = 248.0
+focus_neighbour_left = NodePath("../Card2_Ref")
+focus_previous = NodePath("../Card2_Ref")
+size_flags_horizontal = 3
+custom_styles/hover = SubResource( 13 )
+custom_styles/pressed = SubResource( 14 )
+custom_styles/focus = SubResource( 15 )
+custom_styles/disabled = SubResource( 16 )
+custom_styles/normal = SubResource( 17 )
+flat = true
+
+[node name="JamInfo" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Theme" type="TextureRect" parent="JamInfo" groups=["GWJ_Card"]]
+margin_left = 667.0
+margin_top = -202.0
+margin_right = 1281.0
+margin_bottom = -17.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = ExtResource( 4 )
+expand = true
+stretch_mode = 6
+script = ExtResource( 1 )
+reference = NodePath("../../JamInfo_Ref/HBoxContainer/VBoxContainer/Theme_Ref")
+max_angle_degree = 0.0
+max_v_drift = 0.0
+
+[node name="Card1" type="TextureRect" parent="JamInfo" groups=["GWJ_Card"]]
+margin_left = 1569.0
+margin_top = 5.0
+margin_right = 1720.0
+margin_bottom = 253.0
+mouse_filter = 2
+size_flags_horizontal = 3
+texture = ExtResource( 2 )
+expand = true
+stretch_mode = 6
+script = ExtResource( 1 )
+reference = NodePath("../../JamInfo_Ref/HBoxContainer/VBoxContainer/Cards/Card1_Ref")
+
+[node name="Card2" type="TextureRect" parent="JamInfo" groups=["GWJ_Card"]]
+margin_left = 1754.0
+margin_top = 922.0
+margin_right = 1904.0
+margin_bottom = 1170.0
+mouse_filter = 2
+size_flags_horizontal = 3
+texture = ExtResource( 6 )
+expand = true
+stretch_mode = 6
+script = ExtResource( 1 )
+reference = NodePath("../../JamInfo_Ref/HBoxContainer/VBoxContainer/Cards/Card2_Ref")
+max_angle_degree = 4.0
+angle_variance = 0.2
+angle_dps = 1.8
+drift_variance = 0.2
+drift_pps = 9.0
+
+[node name="Card3" type="TextureRect" parent="JamInfo" groups=["GWJ_Card"]]
+margin_left = 694.0
+margin_top = 1061.0
+margin_right = 845.0
+margin_bottom = 1309.0
+mouse_filter = 2
+size_flags_horizontal = 3
+texture = ExtResource( 5 )
+expand = true
+stretch_mode = 6
+script = ExtResource( 1 )
+reference = NodePath("../../JamInfo_Ref/HBoxContainer/VBoxContainer/Cards/Card3_Ref")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/RESET = SubResource( 18 )
+anims/hide = SubResource( 21 )
+anims/idle_hidden = SubResource( 20 )
+anims/idle_shown = SubResource( 19 )
+anims/show = SubResource( 22 )
