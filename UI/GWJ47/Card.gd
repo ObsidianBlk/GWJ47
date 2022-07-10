@@ -214,6 +214,7 @@ func _FullView(enable : bool = true) -> void:
 func show(enable : bool = true, instant : bool = false) -> void:
 	var ref : Control = _GetRef()
 	if ref == null or _is_visible == enable:
+		call_deferred("emit_signal", "transition_finished")
 		return
 	
 	var total_dist : float = _origin.distance_to(ref.rect_global_position)
@@ -246,6 +247,7 @@ func show(enable : bool = true, instant : bool = false) -> void:
 		_angle_enabled = false
 	
 	if not _viz_transition:
+		#print("Emitting Deferred Transition Finished")
 		call_deferred("emit_signal", "transition_finished")
 
 

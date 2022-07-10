@@ -26,9 +26,18 @@ func _ready() -> void:
 
 
 func _unhandled_input(event : InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel"):
+	if event.is_action_pressed("ui_cancel") and _menu_stack.size() > 1:
 		if _menu_stack.size() > 1:
 			close_ui()
+		elif _menu_stack.size() <= 0 and initial_menu != "" and not Game.is_game_active():
+			request_ui(initial_menu)
+	elif event.is_action_pressed("game_escape") and Game.is_game_active():
+		if get_tree().paused:
+			get_tree().paused = false
+			request_ui("")
+		elif initial_menu != "":
+			get_tree().paused = true
+			request_ui(initial_menu)
 
 # -----------------------------------------------------------------------------
 # Private Methods
@@ -37,6 +46,8 @@ func _ConnectToUI() -> void:
 	for child in get_children():
 		if child.has_signal("ui_requested"):
 			child.connect("ui_requested", self, "request_ui")
+		if child.has_signal("enter_game"):
+			child.connect("enter_game", self, "_on_enter_game")
 		if child.has_method("_on_ui_requested"):
 			connect("ui_requested", child, "_on_ui_requested")
 		if child.has_method("_on_ui_toggle_requested"):
@@ -67,4 +78,8 @@ func close_ui() -> void:
 # -----------------------------------------------------------------------------
 # Handler Methods
 # -----------------------------------------------------------------------------
-
+func _on_enter_game() -> void:
+	get_tree().paused = false
+	request_ui("")
+	if not Game.is_game_active():
+		Game.load_level(Game.DEFAULT_LEVEL)

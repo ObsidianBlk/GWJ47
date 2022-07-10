@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Objects/Surface/Surface.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Actors/Player/Player.tscn" type="PackedScene" id=2]
+
+[node name="TestLevel" type="Node2D"]
+
+[node name="Surface" parent="." instance=ExtResource( 1 )]
+position = Vector2( 639, 795 )
+size = Vector2( 1200, 8 )
+
+[node name="Surface2" parent="." instance=ExtResource( 1 )]
+position = Vector2( 35, 671 )
+size = Vector2( 64, 256 )
+
+[node name="Surface3" parent="." instance=ExtResource( 1 )]
+position = Vector2( 1241, 671 )
+size = Vector2( 64, 256 )
+
+[node name="Player" parent="." instance=ExtResource( 2 )]
+position = Vector2( 639, 633 )
+max_speed = 1000.0
+accel = 1000.0
+gravity = 800.0
+jump_strength = 400.0
+dash_dist = 200.0

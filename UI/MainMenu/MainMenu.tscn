@@ -99,5 +99,6 @@ texture_normal = ExtResource( 2 )
 expand = true
 stretch_mode = 5
 
+[connection signal="pressed" from="MC/VBC/Options/Buttons/EnterGame" to="." method="_on_EnterGame_pressed"]
 [connection signal="pressed" from="MC/VBC/Options/Buttons/Quit" to="." method="_on_Quit_pressed"]
 [connection signal="pressed" from="MC/VBC/About/GWJ" to="." method="_on_GWJ_pressed"]

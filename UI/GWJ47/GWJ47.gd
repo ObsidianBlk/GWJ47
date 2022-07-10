@@ -30,17 +30,17 @@ func _ready() -> void:
 # Private Methods
 # -----------------------------------------------------------------------------
 func _ShowUI(instant : bool = false) -> void:
-	print("Show UI Requested")
+	# TODO: There's a bug here... fix me
 	if _transitioning_cards.empty():
-		print("Transition Cards Empty")
+		#print("Transition Cards Empty")
 		_is_visible = not _is_visible
 		if _is_visible:
-			print("Making Visible")
+			#print("Making Visible")
 			visible = true
 			anim_node.play("show" if not instant else "idle_shown")
 		else:
 			var anim : String = "hide" if not instant else "idle_hidden"
-			print("Hiding GWJ: ", anim, " | ", instant)
+			#print("Hiding GWJ: ", anim, " | ", instant)
 			anim_node.play(anim)
 
 
@@ -60,9 +60,7 @@ func _on_card_transition_finished(card) -> void:
 		_transitioning_cards.erase(card.name)
 		if _transitioning_cards.empty():
 			if not _is_visible:
-				print("Hiding Menu")
 				visible = false
-			print("No Trans Cards")
 	else:
 		printerr("Card transitioned but not stored.")
 	card.disconnect("transition_finished", self, "_on_card_transition_finished")

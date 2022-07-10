@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Actors/Player/Player.gd" type="Script" id=1]
+
+[sub_resource type="CapsuleShape2D" id=1]
+radius = 32.0
+height = 0.0
+
+[node name="Player" type="KinematicBody2D"]
+script = ExtResource( 1 )
+max_speed = 200.0
+accel = 200.0
+gravity = 400.0
+jump_strength = 2000.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource( 1 )
+
+[node name="GroundRay" type="RayCast2D" parent="."]
+enabled = true
+cast_to = Vector2( 0, 1 )
+
+[node name="DashRay" type="RayCast2D" parent="."]
+enabled = true
+cast_to = Vector2( 0, 0 )

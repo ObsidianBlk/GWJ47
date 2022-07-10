@@ -1,46 +1,33 @@
-extends Control
+extends Node2D
 
 # -----------------------------------------------------------------------------
-# Signals
+# Constants
 # -----------------------------------------------------------------------------
-signal ui_requested(ui_name)
-signal enter_game()
+const DEFAULT_LEVEL : String = "res://Levels/TestLevel/TestLevel.tscn"
 
 # -----------------------------------------------------------------------------
-# Export Variables
+# Variables
 # -----------------------------------------------------------------------------
-export var start_visible : bool = false
+var _active_level : Node = null
 
 
 # -----------------------------------------------------------------------------
 # Override Methods
 # -----------------------------------------------------------------------------
-func _ready() -> void:
-	visible = start_visible
 
+# -----------------------------------------------------------------------------
+# Private Methods
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Public Methods
+# -----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
 # Handler Methods
 # -----------------------------------------------------------------------------
-func _on_ui_requested(ui_name : String) -> void:
-	if ui_name == name:
-		visible = true
-	else:
-		visible = false
+#func _on_enter_game() -> void:
+#	$UI.request_ui("")
+#	if _active_level == null:
+#		_LoadGame(DEFAULT_LEVEL)
 
-func _on_ui_toggle_requested(ui_name : String) -> void:
-	if ui_name == name:
-		visible = not visible
-	else:
-		visible = false
-
-func _on_GWJ_pressed():
-	emit_signal("ui_requested", "GWJ47")
-
-
-func _on_Quit_pressed():
-	get_tree().quit()
-
-
-func _on_EnterGame_pressed():
-	emit_signal("enter_game")
