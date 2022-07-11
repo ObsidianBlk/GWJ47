@@ -8,21 +8,24 @@
 script = ExtResource( 3 )
 
 [node name="Surface" parent="." instance=ExtResource( 1 )]
-position = Vector2( 639, 795 )
+position = Vector2( 639, 804 )
 size = Vector2( 1200, 8 )
+immortal = true
+
+[node name="Surface4" parent="." instance=ExtResource( 1 )]
+position = Vector2( 200, 504 )
+size = Vector2( 400, 8 )
 
 [node name="Surface2" parent="." instance=ExtResource( 1 )]
-position = Vector2( 35, 671 )
-size = Vector2( 64, 256 )
+position = Vector2( 35, 400 )
+size = Vector2( 64, 800 )
+immortal = true
 
 [node name="Surface3" parent="." instance=ExtResource( 1 )]
-position = Vector2( 1241, 671 )
-size = Vector2( 64, 256 )
+position = Vector2( 1241, 400 )
+size = Vector2( 64, 800 )
+immortal = true
 
 [node name="Player" parent="." instance=ExtResource( 2 )]
-position = Vector2( 639, 633 )
-max_speed = 1000.0
-accel = 1000.0
-gravity = 800.0
-jump_strength = 400.0
-dash_dist = 200.0
+position = Vector2( 672, 518 )
+stamina_regen = 350.0

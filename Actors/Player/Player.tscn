@@ -8,10 +8,6 @@ height = 0.0
 
 [node name="Player" type="KinematicBody2D"]
 script = ExtResource( 1 )
-max_speed = 200.0
-accel = 200.0
-gravity = 400.0
-jump_strength = 2000.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )
