@@ -18,6 +18,11 @@ export var start_visible : bool = false
 func _ready() -> void:
 	visible = start_visible
 
+# -----------------------------------------------------------------------------
+# Private Methods
+# -----------------------------------------------------------------------------
+func _GrabFocus() -> void:
+	$MC/VBC/Options/Buttons/EnterGame.grab_focus()
 
 # -----------------------------------------------------------------------------
 # Handler Methods
@@ -25,12 +30,15 @@ func _ready() -> void:
 func _on_ui_requested(ui_name : String) -> void:
 	if ui_name == name:
 		visible = true
+		_GrabFocus()
 	else:
 		visible = false
 
 func _on_ui_toggle_requested(ui_name : String) -> void:
 	if ui_name == name:
 		visible = not visible
+		if visible:
+			_GrabFocus()
 	else:
 		visible = false
 
