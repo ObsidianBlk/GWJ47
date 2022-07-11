@@ -5,6 +5,7 @@ extends CanvasLayer
 # -----------------------------------------------------------------------------
 signal ui_requested(ui_name)
 signal ui_toggle_requested(ui_name)
+signal game(restart)
 
 # -----------------------------------------------------------------------------
 # Export Variables
@@ -81,5 +82,6 @@ func close_ui() -> void:
 func _on_enter_game() -> void:
 	get_tree().paused = false
 	request_ui("")
-	if not Game.is_game_active():
-		Game.load_level(Game.DEFAULT_LEVEL)
+	emit_signal("game", false)
+#	if not Game.is_game_active():
+#		Game.load_level(Game.DEFAULT_LEVEL)

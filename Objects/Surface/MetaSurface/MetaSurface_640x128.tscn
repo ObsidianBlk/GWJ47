@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Objects/Surface/MetaSurface/MetaSurface_64_4x4.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Objects/Surface/Surface.tscn" type="PackedScene" id=3]
+
+[node name="MetaSurface_640x128" type="Node2D"]
+
+[node name="Right_Hard_Surf" parent="." instance=ExtResource( 3 )]
+position = Vector2( 192, 0 )
+color = Color( 0.439216, 0.462745, 0.560784, 1 )
+size = Vector2( 256, 128 )
+hit_points = 4000.0
+
+[node name="Left_Hard_Surf" parent="." instance=ExtResource( 3 )]
+position = Vector2( -192, 0 )
+color = Color( 0.439216, 0.552941, 0.560784, 1 )
+size = Vector2( 256, 128 )
+hit_points = 4000.0
+
+[node name="MetaSurface_64_4x4" parent="." instance=ExtResource( 2 )]

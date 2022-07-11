@@ -15,6 +15,7 @@ immortal = true
 [node name="Surface4" parent="." instance=ExtResource( 1 )]
 position = Vector2( 200, 504 )
 size = Vector2( 400, 8 )
+hit_points = 800.0
 
 [node name="Surface2" parent="." instance=ExtResource( 1 )]
 position = Vector2( 35, 400 )

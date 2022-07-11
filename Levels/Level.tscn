@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Actors/Player/Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Objects/Surface/Surface.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Levels/Level.gd" type="Script" id=3]
+
+[node name="Level" type="Node2D"]
+script = ExtResource( 3 )
+
+[node name="StaticGeometry" type="Node2D" parent="."]
+
+[node name="Surface_Left" parent="StaticGeometry" instance=ExtResource( 2 )]
+position = Vector2( 8, 540 )
+size = Vector2( 16, 1080 )
+immortal = true
+
+[node name="Surface_Right" parent="StaticGeometry" instance=ExtResource( 2 )]
+position = Vector2( 1912, 540 )
+size = Vector2( 16, 1080 )
+immortal = true
+
+[node name="Player" parent="." instance=ExtResource( 1 )]
+position = Vector2( -111, 189 )

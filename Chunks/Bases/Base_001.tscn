@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Objects/Surface/Surface.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Chunks/Chunk.gd" type="Script" id=2]
+
+[node name="Base_001" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="Floor" parent="." instance=ExtResource( 1 )]
+position = Vector2( 960, 532 )
+size = Vector2( 1920, 16 )
+immortal = true
+
+[node name="Player_Start" type="Position2D" parent="."]
+position = Vector2( 1437, 375 )

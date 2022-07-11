@@ -70,16 +70,17 @@ func _ready() -> void:
 
 func _draw() -> void:
 	var c : Color = color
-	if _hp >= _damaged_hp:
-		var max_dist = hit_points - _damaged_hp
-		var dist = _hp - _damaged_hp
-		c = lerp(color, damaged_color, 1.0 - (dist / max_dist))
-	elif _hp >= _critical_hp:
-		var max_dist = hit_points - _critical_hp
-		var dist = _hp - _critical_hp
-		c = lerp(damaged_color, critical_color, 1.0 - (dist / max_dist))
-	else:
-		c = critical_color
+	if not Engine.editor_hint:
+		if _hp >= _damaged_hp:
+			var max_dist = hit_points - _damaged_hp
+			var dist = _hp - _damaged_hp
+			c = lerp(color, damaged_color, 1.0 - (dist / max_dist))
+		elif _hp >= _critical_hp:
+			var max_dist = hit_points - _critical_hp
+			var dist = _hp - _critical_hp
+			c = lerp(damaged_color, critical_color, 1.0 - (dist / max_dist))
+		else:
+			c = critical_color
 	draw_rect(Rect2(-(size * 0.5), size), c, filled, line_width, not filled)
 
 # -----------------------------------------------------------------------------

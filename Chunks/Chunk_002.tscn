@@ -1,0 +1,42 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Chunks/Chunk.gd" type="Script" id=1]
+[ext_resource path="res://Objects/Surface/MetaSurface/MetaSurface_AnchorPlatformLeft.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Objects/Surface/MetaSurface/MetaSurface_64_4x4.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Objects/Surface/Surface.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Objects/Surface/MetaSurface/MetaSurface_AnchorPlatformRight.tscn" type="PackedScene" id=5]
+
+[node name="Chunk_002" type="Node2D"]
+script = ExtResource( 1 )
+
+[node name="MetaSurface_64_4x4" parent="." instance=ExtResource( 3 )]
+position = Vector2( 1856, 476 )
+
+[node name="MetaSurface_64_4x5" parent="." instance=ExtResource( 3 )]
+position = Vector2( 64, 476 )
+
+[node name="Surface" parent="." instance=ExtResource( 4 )]
+position = Vector2( 1698, 444 )
+size = Vector2( 192, 64 )
+hit_points = 1000.0
+
+[node name="Surface2" parent="." instance=ExtResource( 4 )]
+position = Vector2( 223, 444 )
+size = Vector2( 192, 64 )
+hit_points = 1000.0
+
+[node name="MetaSurface_AnchorPlatformLeft" parent="." instance=ExtResource( 2 )]
+position = Vector2( 1238, 95 )
+
+[node name="MetaSurface_AnchorPlatformRight" parent="." instance=ExtResource( 5 )]
+position = Vector2( 665, 95 )
+
+[node name="MetaSurface_AnchorPlatformLeft2" parent="." instance=ExtResource( 2 )]
+position = Vector2( 793, 326 )
+
+[node name="MetaSurface_AnchorPlatformRight2" parent="." instance=ExtResource( 5 )]
+position = Vector2( 1110, 326 )
+
+[node name="Surface3" parent="." instance=ExtResource( 4 )]
+position = Vector2( 965, 532 )
+size = Vector2( 256, 16 )

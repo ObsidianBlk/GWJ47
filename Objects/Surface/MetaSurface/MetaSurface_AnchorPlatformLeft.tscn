@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Objects/Surface/Surface.tscn" type="PackedScene" id=2]
+
+[node name="MetaSurface_AnchorPlatformLeft" type="Node2D"]
+
+[node name="Brick1" parent="." instance=ExtResource( 2 )]
+color = Color( 0.439216, 0.529412, 0.560784, 1 )
+hit_points = 800.0
+
+[node name="Brick2" parent="." instance=ExtResource( 2 )]
+position = Vector2( 0, -62 )
+hit_points = 800.0
+
+[node name="Platform" parent="." instance=ExtResource( 2 )]
+position = Vector2( -160, 24 )
+size = Vector2( 256, 16 )
+hit_points = 800.0

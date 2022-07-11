@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Objects/Surface/Surface.tscn" type="PackedScene" id=2]
+
+[node name="MetaSurface_64_4x4" type="Node2D"]
+
+[node name="UL" parent="." instance=ExtResource( 2 )]
+position = Vector2( -32, -32 )
+color = Color( 0.494118, 0.556863, 0.619608, 1 )
+damaged_color = Color( 0.537255, 0.498039, 0.498039, 1 )
+hit_points = 800.0
+
+[node name="UR" parent="." instance=ExtResource( 2 )]
+position = Vector2( 32, -32 )
+color = Color( 0.384314, 0.443137, 0.501961, 1 )
+damaged_color = Color( 0.396078, 0.32549, 0.32549, 1 )
+hit_points = 800.0
+
+[node name="LR" parent="." instance=ExtResource( 2 )]
+position = Vector2( 32, 32 )
+color = Color( 0.372549, 0.407843, 0.443137, 1 )
+damaged_color = Color( 0.580392, 0.529412, 0.529412, 1 )
+hit_points = 800.0
+
+[node name="LL" parent="." instance=ExtResource( 2 )]
+position = Vector2( -32, 32 )
+color = Color( 0.364706, 0.431373, 0.498039, 1 )
+damaged_color = Color( 0.435294, 0.392157, 0.392157, 1 )
+hit_points = 800.0
