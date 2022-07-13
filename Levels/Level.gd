@@ -20,14 +20,15 @@ const BASE_LIST : Array = [
 	preload("res://Chunks/Bases/Base_002.tscn")
 ]
 
+const DROP_RATE : float = 64.0
+
 
 # -----------------------------------------------------------------------------
 # Variables
 # -----------------------------------------------------------------------------
 var _rng : RandomNumberGenerator = null
-var _timer : Timer = null
 
-var _last_chunk : Node2D = null
+var _chunk_stack : Array = []
 
 
 # -----------------------------------------------------------------------------
@@ -42,15 +43,20 @@ onready var _orchestra : Node = get_node("../Orchestra")
 func _ready() -> void:
 	_rng = RandomNumberGenerator.new()
 	_rng.randomize()
-	
-	_timer = Timer.new()
-	add_child(_timer)
-	#_timer.one_shot = false
-	#_timer.connect("timeout", self, "_on_heartbeat")
 
 # -----------------------------------------------------------------------------
 # Private Methods
 # -----------------------------------------------------------------------------
+func _GetLatestChunk() -> Node2D:
+	if _chunk_stack.size() <= 0:
+		return null
+	return _chunk_stack[_chunk_stack.size() - 1]
+
+func _GetLeadChunk() -> Node2D:
+	if _chunk_stack.size() <= 0:
+		return null
+	return _chunk_stack[0]
+
 func _AddNewChunk(use_base : bool = false) -> void:
 	var chunk_object : PackedScene = null
 	if use_base:
@@ -61,21 +67,28 @@ func _AddNewChunk(use_base : bool = false) -> void:
 		chunk_object = CHUNK_LIST[idx]
 	
 	var chunk : Node2D = chunk_object.instance()
-	if chunk and chunk.has_method("drop"):
-		if _last_chunk == null:
+	if chunk and chunk is Chunk:
+		if _chunk_stack.size() <= 0:
 			chunk.position = Vector2(0.0, OS.window_size.y - chunk.height)
 		else:
-			chunk.position = _last_chunk.position - Vector2(0.0, chunk.height)
+			chunk.position = _GetLatestChunk().position - Vector2(0.0, chunk.height)
 		add_child(chunk)
-		connect("drop", chunk, "drop")
-		chunk.connect("max_height_reached", self, "_on_max_height_reached", [chunk])
-		_last_chunk = chunk
+		_chunk_stack.append(chunk)
 
 
 func _DropChunk(chunk : Node2D) -> void:
-	if chunk is Node2D and chunk.has_method("drop"):
-		if is_connected("drop", chunk, "drop"):
-			disconnect("drop", chunk, "drop")
+	if chunk and chunk is Chunk:
+		remove_child(chunk)
+		for i in range(_chunk_stack.size()):
+			if _chunk_stack[i] == chunk:
+				_chunk_stack.remove(i)
+				break
+		chunk.queue_free()
+
+
+func _DropLeadChunk() -> void:
+	if _chunk_stack.size() > 0:
+		var chunk : Node2D = _chunk_stack.pop_front()
 		remove_child(chunk)
 		chunk.queue_free()
 
@@ -84,24 +97,26 @@ func _DropChunk(chunk : Node2D) -> void:
 # -----------------------------------------------------------------------------
 func fill_level() -> void:
 	_AddNewChunk(true)
-	if _last_chunk == null:
+	if _chunk_stack.size() <= 0:
 		printerr("Failed to instance a base chunk.")
 		return
-	if not _last_chunk.has_player_start():
+	var latest : Chunk = _GetLatestChunk()
+	if not latest.has_player_start():
 		printerr("Base Chunk missing player start.")
 		clear()
 		return
 	
-	_player_node.position = _last_chunk.get_player_start()
-	while _last_chunk.position.y > 0.0:
+	_player_node.position = latest.get_player_start()
+	while latest.position.y >= 0.0:
 		_AddNewChunk()
-	_timer.start(1.0)
+		latest = _GetLatestChunk()
+
 
 func clear() -> void:
-	_timer.stop()
-	_last_chunk = null
-	for child in get_children():
-		_DropChunk(child)
+	for i in range(_chunk_stack.size()):
+		remove_child(_chunk_stack[i])
+		_chunk_stack[i].queue_free()
+	_chunk_stack.clear()
 	_player_node.position = Vector2(-500.0, 0.0) # Position is semi-arbutrary
 
 # -----------------------------------------------------------------------------
@@ -112,13 +127,25 @@ func _on_max_height_reached(chunk : Node2D) -> void:
 	_AddNewChunk()
 
 func _on_heartbeat() -> void:
-	emit_signal("drop", 40, 0.0)
+	var latest : Chunk = _GetLatestChunk()
+	if latest:
+		if latest.position.y + DROP_RATE > 0.0:
+			_AddNewChunk()
+	var lead : Chunk = _GetLeadChunk()
+	if lead:
+		if lead.position.y + DROP_RATE >= OS.window_size.y:
+			lead = null
+			_DropLeadChunk()
+	for chunk in _chunk_stack:
+		chunk.position.y += DROP_RATE
+	if not _player_node.is_in_air():
+		_player_node.position.y += DROP_RATE
 
 func _on_game(restart : bool) -> void:
 	if restart:
 		_orchestra.stop()
 		clear()
-	if _last_chunk == null:
+	if _chunk_stack.size() <= 0:
 		fill_level()
 		_orchestra.generate()
 	if not _orchestra.is_playing():

@@ -8,6 +8,16 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Node2D",
+"class": "Chunk",
+"language": "GDScript",
+"path": "res://Chunks/Chunk.gd"
+} ]
+_global_script_class_icons={
+"Chunk": ""
+}
+
 [application]
 
 config/name="GWJ47"
