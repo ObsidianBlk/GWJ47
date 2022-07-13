@@ -160,7 +160,7 @@ func _ProcessDash(delta : float) -> void:
 			if _UpdateStamina(-(dash_strength * 0.3) * delta):
 				_UpdateDashRay()
 				_dash_accum = min(_dash_accum + (dash_strength * delta), dash_strength)
-				print("Dash Accum: ", _dash_accum)
+				#print("Dash Accum: ", _dash_accum)
 				emit_signal("dash_updated", _dash_accum, dash_strength)
 			else:
 				_ProcessGroundRayStates()
@@ -174,7 +174,7 @@ func _ProcessDash(delta : float) -> void:
 					var pos = dashray_node.get_collision_point()
 					global_position = pos - (_direction.normalized() * (size * 0.5))
 				else:
-					print("Dash Accum: ", _dash_accum)
+					#print("Dash Accum: ", _dash_accum)
 					global_position += _direction.normalized() * _dash_accum
 			else:
 				pass # TODO: Maybe some powered explosion!

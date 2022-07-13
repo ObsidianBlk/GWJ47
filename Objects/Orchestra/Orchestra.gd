@@ -58,6 +58,8 @@ var _beat_duration : float = 0.0
 
 var _measures : Array = []
 var _arrangement : Array = []
+var _aidx : int = 0
+var _midx : int = 0
 
 var _playing : bool = false
 var _paused : bool = false
@@ -86,7 +88,7 @@ func set_beats_per_minute(bpm : int) -> void:
 		_beat_duration = 60.0 / float(bpm)
 
 func set_beats_per_bar(bpb : int) -> void:
-	if bpb > 0:
+	if bpb > 0 and bpb%2 == 0:
 		beats_per_bar = bpb
 
 func set_bars_per_measure(bpm : int) -> void:
@@ -122,31 +124,150 @@ func _GetScaleShift(amount : int, dir : int = 0) -> int:
 func _GenerateBarPattern() -> Array:
 	var pattern : Array = []
 	for beat in range(beats_per_bar):
-		pattern.append(1)
+		pattern.append(0)
 	
 	var up_beat_1: int = 0 if _rng.randf() < 0.98 else _rng.randi_range(0, int(float(beats_per_bar) * 0.25))
 	var up_beat_1_dir : int = -1 if _rng.randf() < 0.5 else 1
 	var up_beat_2: int = min(up_beat_1 + int(beats_per_bar * 0.5), beats_per_bar - 1)
 	var up_beat_2_dir : int = -1 if _rng.randf() < 0.5 else 1
 	
-	# TODO: Finish this method... obviously
+	pattern[up_beat_1] = _GetScaleShift(_rng.randi_range(0, 4), -up_beat_1_dir)
+	pattern[up_beat_2] = _GetScaleShift(_rng.randi_range(0, 4), -up_beat_2_dir)
+	
+	for beat in range(beats_per_bar):
+		if beat > up_beat_1 and beat < up_beat_2:
+			var dir : int = up_beat_1_dir if _rng.randf() > 0.8 else -up_beat_1_dir
+			pattern[beat] = _GetScaleShift(_rng.randi_range(0, 4), dir)
+		if beat > up_beat_2:
+			var dir : int = up_beat_2_dir if _rng.randf() > 0.8 else -up_beat_2_dir
+			pattern[beat] = _GetScaleShift(_rng.randi_range(0, 4), up_beat_2_dir)
 	
 	return pattern
+
+func _BuildDistNoteArray(size : int, notes : Array, dist : Array) -> Array:
+	var res : Array = []
+	for n in range(notes.size()):
+		if n >= dist.size():
+			break
+		var count = size * dist[n]
+		for _i in range(count):
+			res.append(notes[n])
+		if res.size() >= size:
+			break
+	return res
+
+func _GetNoteLength(last_note_length : int) -> int:
+	var notes : Array = []
+	notes.append(beats_per_bar)
+	for div in [2,4,8,16]:
+		var note = beats_per_bar / div
+		if note > 0:
+			notes.append(note)
+	
+	var r : float = _rng.randf()
+	if beats_per_minute < 90: # Threshold for "calm" music
+		if last_note_length == 0 or r > 0.7:
+			var notedist : Array = _BuildDistNoteArray(20, notes, [0.1, 0.3, 0.5, 0.05, 0.05])
+			var idx = _rng.randi_range(0, notedist.size()-1)
+			return notedist[idx]
+	elif beats_per_minute >= 90 and beats_per_minute < 150: # Threshold for "rock" music
+		if last_note_length == 0 or r > 0.6:
+			var notedist : Array = _BuildDistNoteArray(20, notes, [0.05, 0.1, 0.6, 0.2, 0.05])
+			var idx = _rng.randi_range(0, notedist.size()-1)
+			return notedist[idx]
+	else: # Everything else is really fast
+		if last_note_length == 0 or r > 0.6:
+			var notedist : Array = _BuildDistNoteArray(20, notes, [0.01, 0.14, 0.5, 0.2, 0.15])
+			var idx = _rng.randi_range(0, notedist.size()-1)
+			return notedist[idx]
+	return last_note_length # We'll probably use the same note length often.
+
+func _GenerateMeasure() -> Dictionary:
+	var measure : Dictionary = {
+		"melody": [],
+	}
+	
+	var bars : Array = []
+	for b in bars_per_measure:
+		bars.append(_GenerateBarPattern())
+	
+	var note_length = 0
+	var beats_past = 0
+	for bar in bars:
+		for scale in bar:
+			if note_length == beats_past:
+				note_length = _GetNoteLength(note_length)
+				beats_past = 1
+				measure.melody.append({
+					"scale": scale,
+				})
+			else:
+				beats_past += 1
+				measure.melody.append(null)
+		note_length = 0
+		beats_past = 0
+	
+	return measure
 
 # -----------------------------------------------------------------------------
 # Public Methods
 # -----------------------------------------------------------------------------
 func generate() -> void:
 	stop()
+	_measures.clear()
+	_arrangement.clear()
+
+	var num_measures : int = _rng.randi_range(4, 8)
+	var num_commons : int = _rng.randi_range(1, max(1, num_measures / 2))
+	print(num_measures, " ", num_commons)
+	var commons : Array = []
+	var uniques : Array = []
+	
+	for _i in range(num_measures):
+		_measures.append(_GenerateMeasure())
+		if num_commons > 0:
+			commons.append(_measures.size() - 1)
+			num_commons -= 1
+		else:
+			uniques.append(_measures.size() - 1)
+	
+	_arrangement.append(commons[0])
+	var last : int = 0   # 0 == Common | 1 == Unique
+	num_measures = _rng.randi_range(num_measures, num_measures * 4)
+	for _i in range(num_measures):
+		var next : int = 0
+		match last:
+			0: # Common
+				next = 1 if uniques.size() > 0 and _rng.randf() < 0.4 else 0
+			1: # Unique
+				next = 1 if uniques.size() > 0 and _rng.randf() < 0.1 else 0
+		match next:
+			0:
+				var idx = _rng.randi_range(0, commons.size() - 1)
+				_arrangement.append(commons[idx])
+			1: 
+				var idx = _rng.randi_range(0, uniques.size() - 1)
+				_arrangement.append(uniques[idx])
+				if _rng.randf() > 0.3:
+					uniques.remove(idx)
+		last = next
+	
+	print("Arrangement: ", _arrangement)
+
 
 func play() -> void:
+	#if not _playing and _arrangement.size() > 0:
 	if not _playing:
 		_playing = true
-		_timer.start(_beat_duration)
+		_aidx = 0
+		_midx = 0
+		_on_heartbeat()
 
 func stop() -> void:
 	_playing = false
 	_paused = false
+	_aidx = 0
+	_midx = 0
 
 func pause(enable : bool = true) -> void:
 	if _playing:

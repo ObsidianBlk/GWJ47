@@ -34,6 +34,7 @@ var _last_chunk : Node2D = null
 # Onready Variables
 # -----------------------------------------------------------------------------
 onready var _player_node : KinematicBody2D = $Player
+onready var _orchestra : Node = get_node("../Orchestra")
 
 # -----------------------------------------------------------------------------
 # Override Methods
@@ -44,8 +45,8 @@ func _ready() -> void:
 	
 	_timer = Timer.new()
 	add_child(_timer)
-	_timer.one_shot = false
-	_timer.connect("timeout", self, "_on_heartbeat")
+	#_timer.one_shot = false
+	#_timer.connect("timeout", self, "_on_heartbeat")
 
 # -----------------------------------------------------------------------------
 # Private Methods
@@ -115,7 +116,13 @@ func _on_heartbeat() -> void:
 
 func _on_game(restart : bool) -> void:
 	if restart:
+		_orchestra.stop()
 		clear()
 	if _last_chunk == null:
 		fill_level()
+		_orchestra.generate()
+	if not _orchestra.is_playing():
+		_orchestra.play()
+	else:
+		_orchestra.pause(not _orchestra.is_paused())
 
