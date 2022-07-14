@@ -10,7 +10,7 @@ signal dash_updated(power_accum, power_max)
 # -----------------------------------------------------------------------------
 # Constants and ENUMs
 # -----------------------------------------------------------------------------
-enum STATE {Idle=0, Moving=1, Air=2, Jump=3, Dash=4}
+enum STATE {Idle=0, Moving=1, WallGrab=2, Air=3, Jump=4, Dash=5}
 enum DASH {Charge=0, Release=1}
 
 # -----------------------------------------------------------------------------
@@ -53,6 +53,10 @@ var _state : int = STATE.Idle
 # -----------------------------------------------------------------------------
 onready var groundray_node : RayCast2D = $GroundRay
 onready var dashray_node : RayCast2D = $DashRay
+
+onready var wallgrab1_node : RayCast2D = $WallGrab1
+onready var wallgrab2_node : RayCast2D = $WallGrab2
+onready var wallgrab3_node : RayCast2D = $WallGrab3
 
 # -----------------------------------------------------------------------------
 # Setter / Getter
@@ -123,7 +127,7 @@ func _unhandled_input(event : InputEvent) -> void:
 			_HandleDashEvent(event)
 		STATE.Air, STATE.Dash:
 			_HandleDashEvent(event)
-		STATE.Jump:
+		STATE.Jump, STATE.WallGrab:
 			_HandleJumpEvents(event)
 
 
@@ -138,11 +142,19 @@ func _physics_process(delta : float) -> void:
 	_UpdateStamina(stamina_regen * delta)
 	if _state == STATE.Dash:
 		_ProcessDash(delta)
+		# This exists just to keep collision going
+		move_and_slide_with_snap(Vector2.ZERO, Vector2.DOWN, Vector2.UP, true)
+	if _state == STATE.WallGrab:
+		pass
 	else:
+		_UpdateWallGrabs()
 		_ProcessVelocity_v(delta)
 		_ProcessVelocity_h(delta)
 		_velocity = move_and_slide_with_snap(_velocity, Vector2.DOWN, Vector2.UP, true)
 		_ProcessGroundRayStates()
+		if _state == STATE.Air:
+			if get_slide_count() > 0 and _IsWallGrabbing():
+				_state = STATE.WallGrab
 
 # -----------------------------------------------------------------------------
 # Private Methods
@@ -227,6 +239,16 @@ func _HandleDashEvent(event : InputEvent) -> void:
 	elif event.is_action_released("dash"):
 		if _dash_state == DASH.Charge:
 			_dash_state = DASH.Release
+
+func _IsWallGrabbing() -> bool:
+	return wallgrab1_node.is_colliding() or wallgrab2_node.is_colliding() or wallgrab3_node.is_colliding()
+
+func _UpdateWallGrabs() -> void:
+	if abs(_direction.x) >= 0.0001:
+		var dist_x = sign(_direction.x) * (size.x + (size.x * 0.1))
+		wallgrab1_node.cast_to.x = dist_x
+		wallgrab2_node.cast_to.x = dist_x
+		wallgrab3_node.cast_to.x = dist_x
 
 func _UpdateDashRay() -> void:
 	if _direction.length_squared() <= 0.0:

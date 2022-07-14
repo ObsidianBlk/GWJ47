@@ -224,15 +224,15 @@ func generate(gen_seed : float, width : float, player_size : float, base : bool 
 		var idx = _rng.randi_range(0, darr.size() - 1)
 		match darr[idx]:
 			0: # Basic Random Surface
-				print("Generating Basic Surface")
+				#print("Generating Basic Surface")
 				var ssize = _RandomSurfaceSize(player_size)
 				_GenerateSurface(_RandomPosition(region, ssize), ssize, true)
 			1: # Basic Random Surface (Width Dominant)
-				print("Generating Basic Surface (Width Dominant)")
+				#print("Generating Basic Surface (Width Dominant)")
 				var ssize = _RandomSurfaceSize(player_size, true)
 				_GenerateSurface(_RandomPosition(region, ssize), ssize, true)
 			2: # Segmented Platform
-				print("Generating Segmented PLatform")
+				#print("Generating Segmented PLatform")
 				var segments : Array = []
 				var segheight : float = 0.0
 				for _n in range(_rng.randi_range(2, 8)):
@@ -242,7 +242,7 @@ func generate(gen_seed : float, width : float, player_size : float, base : bool 
 					segments.append(size.x)
 				_GenerateSegmentedPlatform(_RandomPosition(region, Vector2(segheight, segheight)), segments, segheight)
 			3: # Segmented Wall
-				print("Generating Segmented Wall")
+				#print("Generating Segmented Wall")
 				var segments : Array = []
 				var segwidth : float = 0.0
 				for _n in range(_rng.randi_range(2, 8)):
@@ -252,7 +252,7 @@ func generate(gen_seed : float, width : float, player_size : float, base : bool 
 					segments.append(size.y)
 				_GenerateSegmentedWall(_RandomPosition(region, Vector2(segwidth, segwidth)), segwidth, segments)
 			4: # Stairs
-				print("Generating Stairs")
+				#print("Generating Stairs")
 				var steps : int = _rng.randi_range(2, 8)
 				var dir : Vector2 = Vector2(
 					1 if _rng.randf() < 0.5 else -1,

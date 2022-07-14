@@ -2,11 +2,11 @@
 
 [ext_resource path="res://Actors/Player/Player.gd" type="Script" id=1]
 
-[sub_resource type="CapsuleShape2D" id=1]
-radius = 32.0
-height = 0.0
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 32, 32 )
 
 [node name="Player" type="KinematicBody2D"]
+collision_layer = 8
 script = ExtResource( 1 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -19,3 +19,18 @@ cast_to = Vector2( 0, 1 )
 [node name="DashRay" type="RayCast2D" parent="."]
 enabled = true
 cast_to = Vector2( 0, 0 )
+collision_mask = 3
+
+[node name="WallGrab1" type="RayCast2D" parent="."]
+enabled = true
+cast_to = Vector2( 40, 0 )
+
+[node name="WallGrab2" type="RayCast2D" parent="."]
+position = Vector2( 0, 16 )
+enabled = true
+cast_to = Vector2( 40, 0 )
+
+[node name="WallGrab3" type="RayCast2D" parent="."]
+position = Vector2( 0, -16 )
+enabled = true
+cast_to = Vector2( 40, 0 )

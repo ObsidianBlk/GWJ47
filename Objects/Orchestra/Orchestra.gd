@@ -47,14 +47,15 @@ export var rng_seed : float = 1701.0
 export (SCALE) var scale : int = SCALE.Major
 export var beats_per_minute : int = 120					setget set_beats_per_minute
 export var beats_per_bar : int = 4						setget set_beats_per_bar
-export var bars_per_measure : int = 4					setget set_bars_per_measure
 
 
 # -----------------------------------------------------------------------------
 # Variables
 # -----------------------------------------------------------------------------
 var _rng : RandomNumberGenerator = null
-var _beat_duration : float = 0.0
+var _note_distribution : RandomDistribution = null
+var _note_16th_duration : float = 0.0
+var _beat_tracker : int = 0
 
 var _measures : Array = []
 var _arrangement : Array = []
@@ -79,6 +80,7 @@ func set_rng_seed(s : float) -> void:
 		_rng = RandomNumberGenerator.new()
 	rng_seed = s
 	_rng.seed = rng_seed
+	_UpdateNoteDistribution(true)
 
 func set_scale(s : int) -> void:
 	if SCALE.values().find(s) >= 0:
@@ -87,15 +89,13 @@ func set_scale(s : int) -> void:
 func set_beats_per_minute(bpm : int) -> void:
 	if bpm > 0:
 		beats_per_minute = bpm
-		_beat_duration = 60.0 / float(bpm)
+		_note_16th_duration = (60.0 / float(bpm)) * .25 # Length of a 16th note
+		_UpdateNoteDistribution()
 
 func set_beats_per_bar(bpb : int) -> void:
 	if bpb > 0 and bpb%2 == 0:
 		beats_per_bar = bpb
 
-func set_bars_per_measure(bpm : int) -> void:
-	if bpm > 0:
-		bars_per_measure = bpm
 
 # -----------------------------------------------------------------------------
 # Override Methods
@@ -111,107 +111,104 @@ func _ready() -> void:
 # -----------------------------------------------------------------------------
 # Private Methods
 # -----------------------------------------------------------------------------
-func _GetScaleShift(amount : int, dir : int = 0) -> int:
+func _UpdateNoteDistribution(update_seed : bool = false) -> void:
+	if _note_distribution == null:
+		_note_distribution = RandomDistribution.new(_rng.randf() * 10000.0)
+	elif update_seed:
+		_note_distribution.set_seed(_rng.randf() * 10000.0)
+		return
+	
+	var dist : Array = [0.05, 0.1, 0.8, 0.05, 0.02]
+	if beats_per_minute >= 90 and beats_per_minute < 150:
+		dist = [0.1, 0.2, 0.6, 0.02, 0.0]
+	elif beats_per_minute >= 150:
+		dist = [0.15, 0.35, 0.9, 0.0, 0.0]
+	
+	_note_distribution.set_items([
+		1, dist[0],
+		2, dist[1],
+		4, dist[2],
+		8, dist[3],
+		16, dist[4]
+	])
+	_note_distribution.precalculate()
+	
+	
+
+func _ScaledNotes() -> Dictionary:
 	var nscale : Array = SCALEDATA[scale]
-	var shift : int = 0
-	var from : int = 0 if dir >= 0 else nscale.size() - 1
-	var to : int = 0 if dir < 0 else nscale.size() - 1
+	var notes = {
+		"scale":[],
+		"origin":0
+	}
+	var total_notes : float = 14.0
 	
-	for idx in range(from, to, 1 if dir >= 0 else -1):
-		if shift + nscale[idx] > amount:
-			break
-		shift += nscale[idx]
-	return shift
+	notes.scale.append(1.0)
+	var cur_note : float = 0.0
+	for i in range(nscale.size() - 1, 0, -1):
+		cur_note += float(nscale[i])
+		notes.scale.push_front(1.0 - (cur_note / total_notes))
+	
+	notes.origin = notes.scale.size() - 1 
+	cur_note = 0.0
+	for i in range(nscale.size()):
+		cur_note += float(nscale[i])
+		notes.scale.append(1.0 + (cur_note / total_notes))
+	
+	return notes
 
-
-func _GenerateBarPattern() -> Array:
-	var pattern : Array = []
-	for beat in range(beats_per_bar):
-		pattern.append(0)
+func _GetNoteLength(last_length : int, entries : int, on_beat : bool = true) -> int:
+	if not on_beat:
+		if _rng.randf() < 0.98:
+			return last_length
 	
-	var up_beat_1: int = 0 if _rng.randf() < 0.98 else _rng.randi_range(0, int(float(beats_per_bar) * 0.25))
-	var up_beat_1_dir : int = -1 if _rng.randf() < 0.5 else 1
-	var up_beat_2: int = min(up_beat_1 + int(beats_per_bar * 0.5), beats_per_bar - 1)
-	var up_beat_2_dir : int = -1 if _rng.randf() < 0.5 else 1
+	var rd : RandomDistribution = RandomDistribution.new(_rng.randf() * 10000.0, [
+		1, 0.0,
+		2, 0.0,
+		4, 0.0,
+		8, 0.0,
+		16, 0.0,
+	])
 	
-	pattern[up_beat_1] = _GetScaleShift(_rng.randi_range(0, 4), -up_beat_1_dir)
-	pattern[up_beat_2] = _GetScaleShift(_rng.randi_range(0, 4), -up_beat_2_dir)
-	
-	for beat in range(beats_per_bar):
-		if beat > up_beat_1 and beat < up_beat_2:
-			var dir : int = up_beat_1_dir if _rng.randf() > 0.8 else -up_beat_1_dir
-			pattern[beat] = 1.0 + (dir * (_GetScaleShift(_rng.randi_range(0, 4), dir) / 12.0))
-		if beat > up_beat_2:
-			var dir : int = up_beat_2_dir if _rng.randf() > 0.8 else -up_beat_2_dir
-			pattern[beat] = 1.0 + (dir * (_GetScaleShift(_rng.randi_range(0, 4), up_beat_2_dir) / 12.0))
-	
-	print("Bar Pattern: ", pattern)
-	return pattern
-
-func _BuildDistNoteArray(size : int, notes : Array, dist : Array) -> Array:
-	var res : Array = []
-	for n in range(notes.size()):
-		if n >= dist.size():
-			break
-		var count = size * dist[n]
-		for _i in range(count):
-			res.append(notes[n])
-		if res.size() >= size:
-			break
-	return res
-
-func _GetNoteLength(last_note_length : int) -> int:
-	var notes : Array = []
-	notes.append(beats_per_bar)
-	for div in [2,4,8,16]:
-		var note = beats_per_bar / div
-		if note > 0:
-			notes.append(note)
+	var dist : Array = [0.02, 0.1, 0.85, 0.98, 1.0]
+	if beats_per_minute >= 90 and beats_per_minute < 150:
+		dist = [0.1, 0.3, 0.96, 0.98, 0.0]
+	elif beats_per_minute >= 150:
+		dist = [0.15, 0.35, 0.9, 0.0, 0.0]
 	
 	var r : float = _rng.randf()
-	if beats_per_minute < 90: # Threshold for "calm" music
-		if last_note_length == 0 or r > 0.7:
-			var notedist : Array = _BuildDistNoteArray(20, notes, [0.1, 0.3, 0.5, 0.05, 0.05])
-			var idx = _rng.randi_range(0, notedist.size()-1)
-			return notedist[idx]
-	elif beats_per_minute >= 90 and beats_per_minute < 150: # Threshold for "rock" music
-		if last_note_length == 0 or r > 0.6:
-			var notedist : Array = _BuildDistNoteArray(20, notes, [0.05, 0.1, 0.6, 0.2, 0.05])
-			var idx = _rng.randi_range(0, notedist.size()-1)
-			return notedist[idx]
-	else: # Everything else is really fast
-		if last_note_length == 0 or r > 0.6:
-			var notedist : Array = _BuildDistNoteArray(20, notes, [0.01, 0.14, 0.5, 0.2, 0.15])
-			var idx = _rng.randi_range(0, notedist.size()-1)
-			return notedist[idx]
-	return last_note_length # We'll probably use the same note length often.
+	if r < dist[0] and entries >= 1:
+		return 1
+	elif r < dist[1] and entries >= 2:
+		return 2
+	elif r < dist[2] and entries >= 4:
+		return 4
+	elif r < dist[3] and entries >= 8:
+		return 8
+	elif r < dist[4] and entries >= 16:
+		return 16
+	
+	return 0
 
 func _GenerateMeasure() -> Dictionary:
 	var measure : Dictionary = {
-		"melody": [],
+		"melody":[]
 	}
 	
-	var bars : Array = []
-	for b in bars_per_measure:
-		bars.append(_GenerateBarPattern())
-	
-	var note_length = 0
-	var beats_past = 0
-	for bar in bars:
-		for scale in bar:
-			if note_length == beats_past:
-				note_length = _GetNoteLength(note_length)
-				beats_past = 1
-				measure.melody.append({
-					"scale": scale,
-				})
-			else:
-				beats_past += 1
-				measure.melody.append({
-					"dur": note_length - beats_past
-				})
-		note_length = 0
-		beats_past = 0
+	var num_entires : int = beats_per_bar * 4 # total number of 1/16th notes allowed.
+	var beat_count : int = 1
+	var length : int = 0
+	var last_length : int = 0
+	for e in range(num_entires):
+		if length <= 0:
+			length = _GetNoteLength(last_length, num_entires - e, beat_count == 1)
+			last_length = length
+			
+			measure.melody.append({
+				"scale":0.0
+			})
+		length -= 1
+		beat_count += 1 if beat_count < 4 else -3
 	
 	return measure
 
@@ -299,7 +296,9 @@ func _on_subbeat() -> void:
 func _on_heartbeat() -> void:
 	if not _playing or _paused:
 		return
-	emit_signal("beat")
+	_beat_tracker += 1
+	if _beat_tracker == 4: # There are 4 16th notes in a beat.
+		emit_signal("beat")
 #	var measure : Dictionary = _measures[_arrangement[_aidx]]
 #	var note = measure.melody[_midx]
 #	if note != null and "scale" in note:
@@ -312,7 +311,7 @@ func _on_heartbeat() -> void:
 #		if _aidx >= _arrangement.size():
 #			_aidx = 0
 		
-	_timer.start(_beat_duration)
+	_timer.start(_note_16th_duration)
 #	_sub_beat_timer.start(_beat_duration * 0.9)
 
 
