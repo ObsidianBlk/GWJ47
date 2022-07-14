@@ -9,25 +9,31 @@ signal drop(amount, duration)
 # -----------------------------------------------------------------------------
 # Constants
 # -----------------------------------------------------------------------------
-
-const CHUNK_LIST : Array = [
-	preload("res://Chunks/Chunk_001.tscn"),
-	preload("res://Chunks/Chunk_002.tscn")
-]
-
-const BASE_LIST : Array = [
-	preload("res://Chunks/Bases/Base_001.tscn"),
-	preload("res://Chunks/Bases/Base_002.tscn")
-]
+const CHUNK_OBJ : PackedScene = preload("res://Levels/Chunk/Chunk.tscn")
+#const CHUNK_LIST : Array = [
+#	preload("res://Chunks/Chunk_001.tscn"),
+#	preload("res://Chunks/Chunk_002.tscn")
+#]
+#
+#const BASE_LIST : Array = [
+#	preload("res://Chunks/Bases/Base_001.tscn"),
+#	preload("res://Chunks/Bases/Base_002.tscn")
+#]
 
 const DROP_RATE : float = 64.0
 
+
+# -----------------------------------------------------------------------------
+# Export Variables
+# -----------------------------------------------------------------------------
+export var level_seed : float = 234586790.0
 
 # -----------------------------------------------------------------------------
 # Variables
 # -----------------------------------------------------------------------------
 var _rng : RandomNumberGenerator = null
 
+var _chunk_seed_list : Array = []
 var _chunk_stack : Array = []
 
 
@@ -37,12 +43,23 @@ var _chunk_stack : Array = []
 onready var _player_node : KinematicBody2D = $Player
 onready var _orchestra : Node = get_node("../Orchestra")
 
+
+# -----------------------------------------------------------------------------
+# Setters
+# -----------------------------------------------------------------------------
+func set_level_seed(s : float) -> void:
+	level_seed = s
+	if _rng == null:
+		_rng = RandomNumberGenerator.new()
+	_rng.seed = level_seed
+
 # -----------------------------------------------------------------------------
 # Override Methods
 # -----------------------------------------------------------------------------
 func _ready() -> void:
-	_rng = RandomNumberGenerator.new()
-	_rng.randomize()
+	if _rng == null:
+		_rng = RandomNumberGenerator.new()
+	_rng.seed = level_seed
 
 # -----------------------------------------------------------------------------
 # Private Methods
@@ -57,23 +74,40 @@ func _GetLeadChunk() -> Node2D:
 		return null
 	return _chunk_stack[0]
 
-func _AddNewChunk(use_base : bool = false) -> void:
-	var chunk_object : PackedScene = null
-	if use_base:
-		var idx : int = _rng.randi_range(0, BASE_LIST.size() - 1)
-		chunk_object = BASE_LIST[idx]
+#func _AddNewChunk(use_base : bool = false) -> void:
+#	var chunk_object : PackedScene = null
+#	if use_base:
+#		var idx : int = _rng.randi_range(0, BASE_LIST.size() - 1)
+#		chunk_object = BASE_LIST[idx]
+#	else:
+#		var idx : int = _rng.randi_range(0, CHUNK_LIST.size() - 1)
+#		chunk_object = CHUNK_LIST[idx]
+#
+#	var chunk : Node2D = chunk_object.instance()
+#	if chunk and chunk is Chunk:
+#		if _chunk_stack.size() <= 0:
+#			chunk.position = Vector2(0.0, OS.window_size.y - chunk.height)
+#		else:
+#			chunk.position = _GetLatestChunk().position - Vector2(0.0, chunk.height)
+#		add_child(chunk)
+#		_chunk_stack.append(chunk)
+
+func _AddNewChunk(base : bool = false) -> void:
+	var chunk : Node2D = CHUNK_OBJ.instance()
+	var chunk_seed : float = 0.0
+	if base:
+		chunk_seed = _rng.randf_range(0.0, 10000.0)
 	else:
-		var idx : int = _rng.randi_range(0, CHUNK_LIST.size() - 1)
-		chunk_object = CHUNK_LIST[idx]
+		var idx : int = _rng.randi_range(0, _chunk_seed_list.size() - 1)
+		chunk_seed = _chunk_seed_list[idx]
 	
-	var chunk : Node2D = chunk_object.instance()
-	if chunk and chunk is Chunk:
-		if _chunk_stack.size() <= 0:
-			chunk.position = Vector2(0.0, OS.window_size.y - chunk.height)
-		else:
-			chunk.position = _GetLatestChunk().position - Vector2(0.0, chunk.height)
-		add_child(chunk)
-		_chunk_stack.append(chunk)
+	chunk.generate(chunk_seed, 1920.0, _player_node.size.x, base)
+	if _chunk_stack.size() <= 0:
+		chunk.position = Vector2(0.0, 1080.0 - chunk.height)
+	else:
+		chunk.position = _GetLatestChunk().position - Vector2(0.0, chunk.height)
+	add_child(chunk)
+	_chunk_stack.append(chunk)
 
 
 func _DropChunk(chunk : Node2D) -> void:
@@ -96,6 +130,13 @@ func _DropLeadChunk() -> void:
 # Public Methods
 # -----------------------------------------------------------------------------
 func fill_level() -> void:
+	_rng.seed = level_seed
+	if _chunk_seed_list.size() > 0:
+		_chunk_seed_list.clear()
+	var num_chunk_seeds : int = _rng.randi_range(6, 12)
+	for _i in range(num_chunk_seeds):
+		_chunk_seed_list.append(_rng.randf_range(0.0, 10000.0))
+	
 	_AddNewChunk(true)
 	if _chunk_stack.size() <= 0:
 		printerr("Failed to instance a base chunk.")

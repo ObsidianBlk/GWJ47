@@ -9,6 +9,9 @@
 [node name="World" type="Node2D"]
 
 [node name="Orchestra" parent="." instance=ExtResource( 5 )]
+scale = 4
+beats_per_minute = 200
+beats_per_bar = 8
 
 [node name="Level" parent="." instance=ExtResource( 4 )]
 

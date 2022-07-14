@@ -12,7 +12,7 @@ _global_script_classes=[ {
 "base": "Node2D",
 "class": "Chunk",
 "language": "GDScript",
-"path": "res://Chunks/Chunk.gd"
+"path": "res://Levels/Chunk/Chunk.gd"
 } ]
 _global_script_class_icons={
 "Chunk": ""

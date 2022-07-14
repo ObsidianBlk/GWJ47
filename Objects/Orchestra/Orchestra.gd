@@ -68,6 +68,8 @@ var _paused : bool = false
 # Onready Variables
 # -----------------------------------------------------------------------------
 onready var _timer : Timer = $Timer
+onready var _sub_beat_timer : Timer = $SubBeat_Timer
+onready var _melody : AudioStreamPlayer = $Melody_1
 
 # -----------------------------------------------------------------------------
 # Setters
@@ -103,6 +105,7 @@ func _ready() -> void:
 		_rng = RandomNumberGenerator.new()
 		_rng.seed = rng_seed
 	_timer.connect("timeout", self, "_on_heartbeat")
+	_sub_beat_timer.connect("timeout", self, "_on_subbeat")
 
 
 # -----------------------------------------------------------------------------
@@ -137,11 +140,12 @@ func _GenerateBarPattern() -> Array:
 	for beat in range(beats_per_bar):
 		if beat > up_beat_1 and beat < up_beat_2:
 			var dir : int = up_beat_1_dir if _rng.randf() > 0.8 else -up_beat_1_dir
-			pattern[beat] = _GetScaleShift(_rng.randi_range(0, 4), dir)
+			pattern[beat] = 1.0 + (dir * (_GetScaleShift(_rng.randi_range(0, 4), dir) / 12.0))
 		if beat > up_beat_2:
 			var dir : int = up_beat_2_dir if _rng.randf() > 0.8 else -up_beat_2_dir
-			pattern[beat] = _GetScaleShift(_rng.randi_range(0, 4), up_beat_2_dir)
+			pattern[beat] = 1.0 + (dir * (_GetScaleShift(_rng.randi_range(0, 4), up_beat_2_dir) / 12.0))
 	
+	print("Bar Pattern: ", pattern)
 	return pattern
 
 func _BuildDistNoteArray(size : int, notes : Array, dist : Array) -> Array:
@@ -203,7 +207,9 @@ func _GenerateMeasure() -> Dictionary:
 				})
 			else:
 				beats_past += 1
-				measure.melody.append(null)
+				measure.melody.append({
+					"dur": note_length - beats_past
+				})
 		note_length = 0
 		beats_past = 0
 	
@@ -282,11 +288,31 @@ func is_paused() -> bool:
 # -----------------------------------------------------------------------------
 # Handler Methods
 # -----------------------------------------------------------------------------
+func _on_subbeat() -> void:
+	var measure : Dictionary = _measures[_arrangement[_aidx]]
+	var note = measure.melody[_midx]
+	if note != null and "dur" in note and note["dur"] == 0:
+		_melody.stop()
+
+
+
 func _on_heartbeat() -> void:
 	if not _playing or _paused:
 		return
 	emit_signal("beat")
-	# TODO: Actual heartbeat stuff
+#	var measure : Dictionary = _measures[_arrangement[_aidx]]
+#	var note = measure.melody[_midx]
+#	if note != null and "scale" in note:
+#		_melody.play()
+#		_melody.pitch_scale = note.scale
+#	_midx += 1
+#	if _midx >= measure.melody.size():
+#		_midx = 0
+#		_aidx += 1
+#		if _aidx >= _arrangement.size():
+#			_aidx = 0
+		
 	_timer.start(_beat_duration)
+#	_sub_beat_timer.start(_beat_duration * 0.9)
 
 

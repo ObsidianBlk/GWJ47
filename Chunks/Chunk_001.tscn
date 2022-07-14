@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://Chunks/Chunk.gd" type="Script" id=1]
+[ext_resource path="res://Levels/Chunk/Chunk.gd" type="Script" id=1]
 [ext_resource path="res://Objects/Surface/Surface.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Objects/Surface/MetaSurface/MetaSurface_640x128.tscn" type="PackedScene" id=3]
 
