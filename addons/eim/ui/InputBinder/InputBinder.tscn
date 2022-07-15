@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/eim/ui/InputBinder/InputBinder.gd" type="Script" id=1]
+
+[node name="InputBinder" type="MarginContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+group_name = ""
+joypad_lookup_group = "XBox"
+rel_action_spacing = 0.1
+display_header = true
+enable_key_bindings = true
+enable_mouse_bindings = true
+enable_joy_bindings = true
+merge_joy_button_axis = false
+
+[node name="Tree" type="Tree" parent="."]
+margin_right = 1920.0
+margin_bottom = 1080.0

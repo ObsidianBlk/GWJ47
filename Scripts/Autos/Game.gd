@@ -1,10 +1,19 @@
 extends Node
 
+
+# -----------------------------------------------------------------------------
+# Signals
+# -----------------------------------------------------------------------------
+signal bus_volume_change(bus_id, volume)
+signal score_changed(score)
+
 # -----------------------------------------------------------------------------
 # Constants
 # -----------------------------------------------------------------------------
 const DEFAULT_LEVEL : String = "res://Levels/TestLevel/TestLevel.tscn"
 const MUSIC_DATA_PATH : String = "res://Music/music.json"
+
+enum BUS {MASTER, MUSIC, SFX}
 
 # -----------------------------------------------------------------------------
 # Variables
@@ -13,6 +22,17 @@ var _world_node : Node2D = null
 var _active_level : Node2D = null
 
 var _music_tracks : Array = []
+
+var _score : int = 0
+
+# -----------------------------------------------------------------------------
+# Onready Variables
+# -----------------------------------------------------------------------------
+onready var _BUS = {
+	BUS.MASTER : AudioServer.get_bus_index("Master"),
+	BUS.MUSIC : AudioServer.get_bus_index("Music"),
+	BUS.SFX : AudioServer.get_bus_index("SFX")
+}
 
 # -----------------------------------------------------------------------------
 # Override Methods
@@ -64,6 +84,28 @@ func _LoadMusicData() -> int:
 # -----------------------------------------------------------------------------
 # Public Methods
 # -----------------------------------------------------------------------------
+func get_audio_bus_names() -> PoolStringArray:
+	return PoolStringArray(BUS.keys())
+
+func get_bus_volume(bus_id : int) -> float:
+	if bus_id in _BUS:
+		return db2linear(AudioServer.get_bus_volume_db(_BUS[bus_id]))
+	return 0.0
+
+func set_bus_volume(bus_id : int, volume : float) -> void:
+	if bus_id in _BUS:
+		volume = max(0.0, min(1.0, volume))
+		AudioServer.set_bus_volume_db(_BUS[bus_id], linear2db(volume))
+		emit_signal("bus_volume_change", bus_id, volume)
+
+func add_to_score(amount : int) -> void:
+	if amount > 0:
+		_score += amount
+		emit_signal("score_changed", _score)
+
+func get_score() -> int:
+	return _score
+
 func music_track_count() -> int:
 	return _music_tracks.size()
 

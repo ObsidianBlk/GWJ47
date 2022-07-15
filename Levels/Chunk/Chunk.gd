@@ -60,15 +60,6 @@ func _GetPlayerStartNode() -> Node2D:
 			return child
 	return null
 
-func _CreateWeightedDistArray(src : Array, dist : Array, size : int) -> Array:
-	var res : Array = []
-	for i in range(src.size()):
-		if i >= dist.size():
-			break
-		var count : int = int(float(size) * dist[i])
-		for _i in range(count):
-			res.append(src[i])
-	return res
 
 func _SurfaceIntersectsSurfaces(surf : Node2D) -> bool:
 	for child in get_children():
@@ -139,8 +130,15 @@ func _RandomSurfaceSize(player_size : float, width_dominant : bool = false) -> V
 func _RandomPosition(region : Rect2, size : Vector2, force_pure_random : bool = false) -> Vector2:
 	var mode : int = 0
 	if not force_pure_random:
-		var modearr : Array = _CreateWeightedDistArray([0,1,2,3,4], [0.1, 0.25, 0.25, 0.25, 0.25], 100)
-		mode = modearr[_rng.randi_range(0, modearr.size() - 1)]
+		var mode_dist : RandomDistribution = RandomDistribution.new()
+		mode_dist.set_items([
+			0, 0.25,
+			1, 0.5,
+			2, 0.5,
+			3, 0.5,
+			4, 0.5
+		])
+		mode = mode_dist.randv(_rng)
 	
 	var pos = Vector2.ZERO
 	match mode:
@@ -185,44 +183,31 @@ func generate(gen_seed : float, width : float, player_size : float, base : bool 
 	var hh : float = height * 0.5
 	var qw : float = width * 0.33
 	
-	var _regions : Array = [
-		Rect2(0, 0, width, hh),
-		Rect2(0, hh, width, hh),
-		Rect2(0, 0, qw, height),
-		Rect2(qw, 0, qw, height),
-		Rect2(2*qw, 0, qw, height)
-	]
-#	var _regions : Array = [
-#		Rect2(0, 0, width, hh),
-#		Rect2(0, hh, width, hh),
-#		Rect2(0, 0, hw, height),
-#		Rect2(hw, 0, hw, height),
-#		Rect2(0, 0, hw, hh),
-#		Rect2(0, hh, hw, hh),
-#		Rect2(hw, 0, hw, hh),
-#		Rect2(hw, hh, hw, hh),
-#		Rect2(0, 0, qw, height),
-#		Rect2(qw, 0, qw, height),
-#		Rect2(2*qw, 0, qw, height),
-#		Rect2(0, 0, qw, hh),
-#		Rect2(0, hh, qw, hh),
-#		Rect2(qw, 0, qw, hh),
-#		Rect2(qw, hh, qw, hh),
-#		Rect2(2*qw, 0, qw, hh),
-#		Rect2(2*qw, hh, qw, hh),
-#	]
+	var region_dist : RandomDistribution = RandomDistribution.new()
+	region_dist.set_items([
+		Rect2(0, 0, width, hh), 0.25,
+		Rect2(0, hh, width, hh), 0.25,
+		Rect2(0, 0, qw, height), 0.33,
+		Rect2(qw, 0, qw, height), 0.33,
+		Rect2(2*qw, 0, qw, height), 0.33,
+	])
 	
 	if base:
 		_GenerateSurface(Vector2(0, height - player_size), Vector2(width, player_size), true, true)
 	
 	var num_structures : int = _rng.randi_range(5, 20)
-	var darr : Array = _CreateWeightedDistArray([0,1,2,3,4], [0.01, 0.16, 0.24, 0.16, 0.16], 100)
+	var structure_dist : RandomDistribution = RandomDistribution.new()
+	structure_dist.set_items([
+		0, 0.1,
+		1, 0.4,
+		2, 0.6,
+		3, 0.4,
+		4, 0.4
+	])
 	
 	for _i in range(num_structures):
-		var ridx = _rng.randi_range(0, _regions.size() - 1)
-		var region : Rect2 = _regions[ridx]
-		var idx = _rng.randi_range(0, darr.size() - 1)
-		match darr[idx]:
+		var region : Rect2 = region_dist.randv(_rng)
+		match structure_dist.randv(_rng):
 			0: # Basic Random Surface
 				#print("Generating Basic Surface")
 				var ssize = _RandomSurfaceSize(player_size)
@@ -267,8 +252,7 @@ func generate(gen_seed : float, width : float, player_size : float, base : bool 
 	if base:
 		var attempts : int = 10
 		for _i in range(attempts):
-			var ridx : int = _rng.randi_range(0, _regions.size() - 1)
-			var region : Rect2 = _regions[ridx]
+			var region : Rect2 = region_dist.randv(_rng)
 			var size : Vector2 = Vector2(player_size, player_size)
 			var pos : Vector2 = _RandomPosition(region, size, true)
 			if not _RectIntersectsSurfaces(Rect2(pos, size)):

@@ -12,7 +12,17 @@ script = ExtResource( 1 )
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )
 
-[node name="GroundRay" type="RayCast2D" parent="."]
+[node name="GroundRay1" type="RayCast2D" parent="."]
+enabled = true
+cast_to = Vector2( 0, 0.25 )
+
+[node name="GroundRay2" type="RayCast2D" parent="."]
+position = Vector2( 24, 0 )
+enabled = true
+cast_to = Vector2( 0, 0.25 )
+
+[node name="GroundRay3" type="RayCast2D" parent="."]
+position = Vector2( -24, 0 )
 enabled = true
 cast_to = Vector2( 0, 0.25 )
 

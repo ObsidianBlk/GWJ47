@@ -51,7 +51,10 @@ var _state : int = STATE.Idle
 # -----------------------------------------------------------------------------
 # Onready Variables
 # -----------------------------------------------------------------------------
-onready var groundray_node : RayCast2D = $GroundRay
+onready var groundray1_node : RayCast2D = $GroundRay1
+onready var groundray2_node : RayCast2D = $GroundRay2
+onready var groundray3_node : RayCast2D = $GroundRay3
+
 onready var dashray_node : RayCast2D = $DashRay
 
 onready var wallgrab1_node : RayCast2D = $WallGrab1
@@ -137,14 +140,16 @@ func _physics_process(delta : float) -> void:
 	
 	if _size_dirty:
 		_size_dirty = false
-		groundray_node.position = Vector2(0, size.y * 0.5)
+		groundray1_node.position = Vector2(groundray1_node.position.x, size.y * 0.5)
+		groundray2_node.position = Vector2(groundray2_node.position.x, size.y * 0.5)
+		groundray3_node.position = Vector2(groundray3_node.position.x, size.y * 0.5)
 	
 	_UpdateStamina(stamina_regen * delta)
 	if _state == STATE.Dash:
 		_ProcessDash(delta)
 		# This exists just to keep collision going
 		move_and_slide_with_snap(Vector2.ZERO, Vector2.DOWN, Vector2.UP, true)
-	if _state == STATE.WallGrab:
+	elif _state == STATE.WallGrab:
 		pass
 	else:
 		_UpdateWallGrabs()
@@ -172,7 +177,6 @@ func _ProcessDash(delta : float) -> void:
 			if _UpdateStamina(-(dash_strength * 0.3) * delta):
 				_UpdateDashRay()
 				_dash_accum = min(_dash_accum + (dash_strength * delta), dash_strength)
-				#print("Dash Accum: ", _dash_accum)
 				emit_signal("dash_updated", _dash_accum, dash_strength)
 			else:
 				_ProcessGroundRayStates()
@@ -211,7 +215,7 @@ func _ProcessVelocity_h(delta : float) -> void:
 
 
 func _ProcessGroundRayStates() -> void:
-	if _state != STATE.Jump and groundray_node.is_colliding():
+	if _state != STATE.Jump and _IsGroundRaysColliding():
 		_state = STATE.Idle if abs(_velocity.x) < 0.1 else STATE.Moving
 	elif _state == STATE.Dash or _velocity.y >= 0.0:
 		_state = STATE.Air
@@ -264,6 +268,8 @@ func _UpdateStamina(amount : float) -> bool:
 	emit_signal("stamina_updated", _stamina, max_stamina)
 	return true
 
+func _IsGroundRaysColliding() -> bool:
+	return groundray1_node.is_colliding() or groundray2_node.is_colliding() or groundray3_node.is_colliding()
 
 # -----------------------------------------------------------------------------
 # Public Methods

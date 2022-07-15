@@ -24,14 +24,40 @@ _global_script_class_icons={
 "RandomDistribution": ""
 }
 
+[GWJ47]
+
+ei_groups_list=[ "game_controls" ]
+ei_groups/game_controls={
+"actions": [ {
+"desc": "Move Left",
+"name": "left"
+}, {
+"desc": "Move Right",
+"name": "right"
+}, {
+"desc": "Jump",
+"name": "jump"
+}, {
+"desc": "Dash",
+"name": "dash"
+}, {
+"desc": "Pause",
+"name": "game_escape"
+} ],
+"unique_inputs": true
+}
+
 [application]
 
 config/name="GWJ47"
 run/main_scene="res://World.tscn"
 config/icon="res://icon.png"
+config/eim_project_section="GWJ47"
+config/eim_config_section="Input"
 
 [autoload]
 
+EIM="*res://addons/eim/scripts/auto/EIM.gd"
 Game="*res://Scripts/Autos/Game.gd"
 
 [display]
@@ -40,6 +66,10 @@ window/size/width=1920
 window/size/height=1080
 window/stretch/mode="viewport"
 window/stretch/aspect="keep"
+
+[editor_plugins]
+
+enabled=PoolStringArray( "res://addons/eim/plugin.cfg" )
 
 [input]
 
