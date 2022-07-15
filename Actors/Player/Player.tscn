@@ -14,7 +14,7 @@ shape = SubResource( 1 )
 
 [node name="GroundRay" type="RayCast2D" parent="."]
 enabled = true
-cast_to = Vector2( 0, 1 )
+cast_to = Vector2( 0, 0.25 )
 
 [node name="DashRay" type="RayCast2D" parent="."]
 enabled = true

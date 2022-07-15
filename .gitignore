@@ -18,3 +18,6 @@ Work/*
 .mono/
 data_*/
 
+# Preventing the music size sake, really
+# Maybe also to be sure not to accidently distribute what I shouldn't.
+Music/*.ogg

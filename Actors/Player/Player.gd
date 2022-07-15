@@ -152,7 +152,7 @@ func _physics_process(delta : float) -> void:
 		_ProcessVelocity_h(delta)
 		_velocity = move_and_slide_with_snap(_velocity, Vector2.DOWN, Vector2.UP, true)
 		_ProcessGroundRayStates()
-		if _state == STATE.Air:
+		if _state == STATE.Air and abs(_direction.x) > 0.001:
 			if get_slide_count() > 0 and _IsWallGrabbing():
 				_state = STATE.WallGrab
 
@@ -197,7 +197,7 @@ func _ProcessDash(delta : float) -> void:
 func _ProcessVelocity_v(delta : float) -> void:
 	if _state == STATE.Jump and _velocity.y >= 0.0:
 		_velocity.y = -_jump_strength
-	else:
+	elif not is_on_floor():
 		var multiplier = fall_multiplier if (_state == STATE.Air or _velocity.y >= 0.0) else 1.0
 		_velocity.y += _gravity * multiplier * delta
 
@@ -227,6 +227,8 @@ func _HandleMoveEvents(event : InputEvent) -> void:
 
 func _HandleJumpEvents(event : InputEvent) -> void:
 	if event.is_action_pressed("jump") and _UpdateStamina(-(_jump_strength * 0.1)):
+		if _state == STATE.WallGrab and _direction.length() > 0.001:
+			_velocity.y = min(_direction.x * max_speed, max_speed)
 		_state = STATE.Jump
 	elif event.is_action_released("jump") and _state == STATE.Jump:
 		_state = STATE.Air
@@ -268,6 +270,10 @@ func _UpdateStamina(amount : float) -> bool:
 # -----------------------------------------------------------------------------
 func is_in_air() -> bool:
 	return [STATE.Jump, STATE.Air, STATE.Dash].find(_state) >= 0
+
+func drop_if_not_in_air(amount : float) -> void:
+	if not is_in_air():
+		position.y += amount
 
 # -----------------------------------------------------------------------------
 # Handler Methods

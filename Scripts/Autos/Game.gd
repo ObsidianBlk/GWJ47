@@ -4,12 +4,15 @@ extends Node
 # Constants
 # -----------------------------------------------------------------------------
 const DEFAULT_LEVEL : String = "res://Levels/TestLevel/TestLevel.tscn"
+const MUSIC_DATA_PATH : String = "res://Music/music.json"
 
 # -----------------------------------------------------------------------------
 # Variables
 # -----------------------------------------------------------------------------
 var _world_node : Node2D = null
 var _active_level : Node2D = null
+
+var _music_tracks : Array = []
 
 # -----------------------------------------------------------------------------
 # Override Methods
@@ -24,6 +27,7 @@ func _Initialize() -> void:
 	if _world_node != null:
 		return
 	
+	_LoadMusicData()
 	for child in get_tree().root.get_children():
 		if child.name == "World":
 			_world_node = child
@@ -32,25 +36,43 @@ func _Initialize() -> void:
 	if _world_node == null:
 		printerr("Failed to find the World node.")
 
+func _LoadMusicData() -> int:
+	var file : File = File.new()
+	var res : int = file.open(MUSIC_DATA_PATH, File.READ)
+	if res == OK:
+		var result : JSONParseResult = JSON.parse(file.get_as_text())
+		file.close()
+		
+		if result.error != OK:
+			printerr("[on line ", result.error_line, "]: ", result.error_string)
+			return result.error
+		if typeof(result.result) != TYPE_ARRAY:
+			printerr("Failed to load music data json. Expected Array type.")
+			return ERR_INVALID_DATA
+		for item in result.result:
+			if typeof(item) == TYPE_DICTIONARY:
+				var dkeys : Array = item.keys()
+				var valid : bool = true
+				for param in ["name", "filepath", "http", "author", "copyright", "bpm"]:
+					if dkeys.find(param) < 0:
+						valid = false
+						break
+				if valid:
+					_music_tracks.append(item)
+	return res
+
 # -----------------------------------------------------------------------------
 # Public Methods
 # -----------------------------------------------------------------------------
-func load_level(src : String) -> void:
-	var Level = load(src)
-	if not Level:
-		printerr("Failed to load level ", src)
-		return
-	
-	if _active_level != null:
-		_world_node.remove_child(_active_level)
-		_active_level.queue_free()
-		_active_level = null
-	
-	_active_level = Level.instance()
-	if _active_level:
-		_world_node.add_child(_active_level)
+func music_track_count() -> int:
+	return _music_tracks.size()
 
-func is_game_active() -> bool:
-	return _active_level != null
+func get_music_track_info(idx : int):
+	if idx >= 0 and idx < _music_tracks.size():
+		var res : Dictionary = {}
+		for param in _music_tracks[idx].keys():
+			res[param] = _music_tracks[idx][param]
+		return res
+	return null
 
 

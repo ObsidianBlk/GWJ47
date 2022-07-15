@@ -84,6 +84,17 @@ func set_items(items : Array) -> void:
 	clear()
 	add_items(items)
 
+func set_item_weight(idx : int, weight : float) -> void:
+	if weight <= 0.0:
+		printerr("Weight value expected to be greater than zero.")
+		return
+	
+	if idx >= 0 and idx < _items.size():
+		_total_weight -= _items[idx].weight
+		_total_weight += weight
+		_items[idx].weight = weight
+		_dirty = true
+
 func set_seed(rng_seed : float) -> void:
 	_seed = rng_seed
 	_rng.seed = _seed
@@ -103,10 +114,11 @@ func precalculate() -> void:
 		item.chance = accum / _total_weight
 	_dirty = false
 
-func randv():
+func randv(rng_override : RandomNumberGenerator = null):
+	var rng = _rng if rng_override == null else rng_override
 	if _dirty:
 		precalculate()
-	var r = _rng.randf()
+	var r = rng.randf()
 	for item in _items:
 		if item.chance > r:
 			return item.value

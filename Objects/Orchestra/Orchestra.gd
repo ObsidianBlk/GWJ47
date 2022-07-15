@@ -80,7 +80,6 @@ func set_rng_seed(s : float) -> void:
 		_rng = RandomNumberGenerator.new()
 	rng_seed = s
 	_rng.seed = rng_seed
-	_UpdateNoteDistribution(true)
 
 func set_scale(s : int) -> void:
 	if SCALE.values().find(s) >= 0:
@@ -89,7 +88,6 @@ func set_scale(s : int) -> void:
 func set_beats_per_minute(bpm : int) -> void:
 	if bpm > 0:
 		beats_per_minute = bpm
-		_note_16th_duration = (60.0 / float(bpm)) * .25 # Length of a 16th note
 		_UpdateNoteDistribution()
 
 func set_beats_per_bar(bpb : int) -> void:
@@ -104,6 +102,7 @@ func _ready() -> void:
 	if _rng == null:
 		_rng = RandomNumberGenerator.new()
 		_rng.seed = rng_seed
+	_UpdateNoteDistribution()
 	_timer.connect("timeout", self, "_on_heartbeat")
 	_sub_beat_timer.connect("timeout", self, "_on_subbeat")
 
@@ -111,13 +110,14 @@ func _ready() -> void:
 # -----------------------------------------------------------------------------
 # Private Methods
 # -----------------------------------------------------------------------------
-func _UpdateNoteDistribution(update_seed : bool = false) -> void:
+func _SetAudioServerVolume(vol : float) -> void:
+	vol = max(0.0, min(1.0, vol))
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Orchestra"), linear2db(vol))
+
+func _UpdateNoteDistribution() -> void:
+	_note_16th_duration = (60.0 / float(beats_per_minute)) * .25 # Length of a 16th note
 	if _note_distribution == null:
-		_note_distribution = RandomDistribution.new(_rng.randf() * 10000.0)
-	elif update_seed:
-		_note_distribution.set_seed(_rng.randf() * 10000.0)
-		return
-	
+		_note_distribution = RandomDistribution.new()
 	var dist : Array = [0.05, 0.1, 0.8, 0.05, 0.02]
 	if beats_per_minute >= 90 and beats_per_minute < 150:
 		dist = [0.1, 0.2, 0.6, 0.02, 0.0]
@@ -162,51 +162,52 @@ func _GetNoteLength(last_length : int, entries : int, on_beat : bool = true) -> 
 		if _rng.randf() < 0.98:
 			return last_length
 	
-	var rd : RandomDistribution = RandomDistribution.new(_rng.randf() * 10000.0, [
-		1, 0.0,
-		2, 0.0,
-		4, 0.0,
-		8, 0.0,
-		16, 0.0,
-	])
+	var length : int = _note_distribution.randv(_rng)
+	if length > entries:
+		return 0
 	
-	var dist : Array = [0.02, 0.1, 0.85, 0.98, 1.0]
-	if beats_per_minute >= 90 and beats_per_minute < 150:
-		dist = [0.1, 0.3, 0.96, 0.98, 0.0]
-	elif beats_per_minute >= 150:
-		dist = [0.15, 0.35, 0.9, 0.0, 0.0]
-	
-	var r : float = _rng.randf()
-	if r < dist[0] and entries >= 1:
-		return 1
-	elif r < dist[1] and entries >= 2:
-		return 2
-	elif r < dist[2] and entries >= 4:
-		return 4
-	elif r < dist[3] and entries >= 8:
-		return 8
-	elif r < dist[4] and entries >= 16:
-		return 16
-	
-	return 0
+	return length
+
+func _GetNoteScaleOffset(NoteScaleList : Array, LastOffset : int) -> int:
+	var note_offset_dist : RandomDistribution = RandomDistribution.new()
+	for i in range(NoteScaleList.size()):
+		var weight : float = 0.5
+		if i < LastOffset:
+			weight = float(LastOffset - i) / float(LastOffset)
+		elif i > LastOffset:
+			weight = float(i - LastOffset) / float(LastOffset + 1)
+		note_offset_dist.add_item(i - LastOffset, weight)
+	return LastOffset + note_offset_dist.randv(_rng)
+
 
 func _GenerateMeasure() -> Dictionary:
 	var measure : Dictionary = {
 		"melody":[]
 	}
 	
+	var note_scale : Array = _ScaledNotes().scale
+	
 	var num_entires : int = beats_per_bar * 4 # total number of 1/16th notes allowed.
 	var beat_count : int = 1
 	var length : int = 0
 	var last_length : int = 0
+	var note_scale_idx : int = -1#_rng.randi_range(0, note_scale.size() - 1)
 	for e in range(num_entires):
 		if length <= 0:
 			length = _GetNoteLength(last_length, num_entires - e, beat_count == 1)
 			last_length = length
 			
+			if note_scale_idx < 0:
+				note_scale_idx = _rng.randi_range(0, note_scale.size() - 1)
+			else:
+				note_scale_idx = _GetNoteScaleOffset(note_scale, note_scale_idx)
+			
 			measure.melody.append({
-				"scale":0.0
+				"scale":note_scale[note_scale_idx],
+				"strong": beat_count == 1
 			})
+		else:
+			measure.melody.append(null)
 		length -= 1
 		beat_count += 1 if beat_count < 4 else -3
 	
@@ -288,7 +289,7 @@ func is_paused() -> bool:
 func _on_subbeat() -> void:
 	var measure : Dictionary = _measures[_arrangement[_aidx]]
 	var note = measure.melody[_midx]
-	if note != null and "dur" in note and note["dur"] == 0:
+	if note != null:
 		_melody.stop()
 
 
@@ -299,19 +300,27 @@ func _on_heartbeat() -> void:
 	_beat_tracker += 1
 	if _beat_tracker == 4: # There are 4 16th notes in a beat.
 		emit_signal("beat")
-#	var measure : Dictionary = _measures[_arrangement[_aidx]]
-#	var note = measure.melody[_midx]
-#	if note != null and "scale" in note:
-#		_melody.play()
-#		_melody.pitch_scale = note.scale
-#	_midx += 1
-#	if _midx >= measure.melody.size():
-#		_midx = 0
-#		_aidx += 1
-#		if _aidx >= _arrangement.size():
-#			_aidx = 0
-		
+	var measure : Dictionary = _measures[_arrangement[_aidx]]
+	var note = measure.melody[_midx]
+	if note != null:
+		if "scale" in note:
+			_melody.play()
+			_melody.pitch_scale = note.scale
+		if "strong" in note and note["strong"] == true:
+			_SetAudioServerVolume(1.0)
+		else:
+			_SetAudioServerVolume(0.9)
+	else:
+		_SetAudioServerVolume(0.9)
+			
+	_midx += 1
+	if _midx >= measure.melody.size():
+		_midx = 0
+		_aidx += 1
+		if _aidx >= _arrangement.size():
+			_aidx = 0
+	
 	_timer.start(_note_16th_duration)
-#	_sub_beat_timer.start(_beat_duration * 0.9)
+	_sub_beat_timer.start(_note_16th_duration * 0.9)
 
 

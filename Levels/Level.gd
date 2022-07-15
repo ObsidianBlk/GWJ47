@@ -20,13 +20,14 @@ const CHUNK_OBJ : PackedScene = preload("res://Levels/Chunk/Chunk.tscn")
 #	preload("res://Chunks/Bases/Base_002.tscn")
 #]
 
-const DROP_RATE : float = 64.0
+const DROP_RATE : float = 8.0
 
 
 # -----------------------------------------------------------------------------
 # Export Variables
 # -----------------------------------------------------------------------------
-export var level_seed : float = 234586790.0
+export var level_seed : float = 2345790.0
+export var beat_stream_nodepath : NodePath = ""
 
 # -----------------------------------------------------------------------------
 # Variables
@@ -41,8 +42,6 @@ var _chunk_stack : Array = []
 # Onready Variables
 # -----------------------------------------------------------------------------
 onready var _player_node : KinematicBody2D = $Player
-onready var _orchestra : Node = get_node("../Orchestra")
-
 
 # -----------------------------------------------------------------------------
 # Setters
@@ -60,6 +59,12 @@ func _ready() -> void:
 	if _rng == null:
 		_rng = RandomNumberGenerator.new()
 	_rng.seed = level_seed
+	
+	var beat_stream = get_node_or_null(beat_stream_nodepath)
+	if beat_stream == null or not beat_stream.has_method("play_beat_delayed"):
+		printerr("Failed to find beat generating audio stream player.")
+	else:
+		beat_stream.connect("beat", self, "_on_heartbeat")
 
 # -----------------------------------------------------------------------------
 # Private Methods
@@ -73,24 +78,6 @@ func _GetLeadChunk() -> Node2D:
 	if _chunk_stack.size() <= 0:
 		return null
 	return _chunk_stack[0]
-
-#func _AddNewChunk(use_base : bool = false) -> void:
-#	var chunk_object : PackedScene = null
-#	if use_base:
-#		var idx : int = _rng.randi_range(0, BASE_LIST.size() - 1)
-#		chunk_object = BASE_LIST[idx]
-#	else:
-#		var idx : int = _rng.randi_range(0, CHUNK_LIST.size() - 1)
-#		chunk_object = CHUNK_LIST[idx]
-#
-#	var chunk : Node2D = chunk_object.instance()
-#	if chunk and chunk is Chunk:
-#		if _chunk_stack.size() <= 0:
-#			chunk.position = Vector2(0.0, OS.window_size.y - chunk.height)
-#		else:
-#			chunk.position = _GetLatestChunk().position - Vector2(0.0, chunk.height)
-#		add_child(chunk)
-#		_chunk_stack.append(chunk)
 
 func _AddNewChunk(base : bool = false) -> void:
 	var chunk : Node2D = CHUNK_OBJ.instance()
@@ -167,7 +154,7 @@ func _on_max_height_reached(chunk : Node2D) -> void:
 	_DropChunk(chunk)
 	_AddNewChunk()
 
-func _on_heartbeat() -> void:
+func _on_heartbeat(beat : int = 0) -> void:
 	var latest : Chunk = _GetLatestChunk()
 	if latest:
 		if latest.position.y + DROP_RATE > 0.0:
@@ -177,20 +164,37 @@ func _on_heartbeat() -> void:
 		if lead.position.y + DROP_RATE >= OS.window_size.y:
 			lead = null
 			_DropLeadChunk()
+	var include_player : bool = not _player_node.is_in_air()
 	for chunk in _chunk_stack:
 		chunk.position.y += DROP_RATE
-	if not _player_node.is_in_air():
-		_player_node.position.y += DROP_RATE
+	#if not _player_node.is_in_air():
+	if include_player:
+		_player_node.drop_if_not_in_air(DROP_RATE)
 
 func _on_game(restart : bool) -> void:
+	var beat_stream = get_node_or_null(beat_stream_nodepath)
+	if beat_stream == null or not beat_stream.has_method("play_beat_delayed"):
+		printerr("Failed to find beat generating audio stream player.")
+		return
+	
 	if restart:
-		_orchestra.stop()
 		clear()
 	if _chunk_stack.size() <= 0:
 		fill_level()
-		_orchestra.generate()
-	if not _orchestra.is_playing():
-		_orchestra.play()
+	
+	if beat_stream.playing:
+		beat_stream.stream_paused = not beat_stream.stream_paused
 	else:
-		_orchestra.pause(not _orchestra.is_paused())
+		var music_count = Game.music_track_count()
+		if music_count > 0:
+			var music_info = Game.get_music_track_info(_rng.randi_range(0, music_count - 1))
+			if music_info != null:
+				print("Playing: ", music_info.name)
+				beat_stream.stream = load(music_info.filepath)
+				beat_stream.beats_per_minute = music_info.bpm
+				beat_stream.play_beat_delayed(4)
+			else:
+				print("Failed to find music")
+		else:
+			print("No music info found")
 
