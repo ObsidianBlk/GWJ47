@@ -5,7 +5,7 @@ extends Node
 # Signals
 # -----------------------------------------------------------------------------
 signal game_started()
-signal game_finished()
+signal game_finished(win, score)
 signal bus_volume_change(bus_id, volume)
 signal score_changed(score)
 signal beat(beat)
@@ -32,6 +32,7 @@ var _glow_enabled : bool = true
 var _glow_intensity : float = 0.8
 
 var _score : int = 0
+var _win_state : bool = false
 
 # -----------------------------------------------------------------------------
 # Onready Variables
@@ -171,14 +172,19 @@ func play_track(idx : int, beat_delay : int = 0) -> void:
 				else:
 					_music_player.play_beat_delayed(beat_delay)
 
+func is_music_playing() -> bool:
+	if _music_player != null:
+		return _music_player.playing
+	return false
+
 func pause_music(pause : bool = true) -> void:
 	if _music_player != null and _music_player.playing:
 		_music_player.stream_paused = pause
 
-func is_music_paused() -> bool:
+func is_music_paused(paused_if_not_playing : bool = true) -> bool:
 	if _music_player != null and _music_player.playing:
 		return _music_player.stream_paused
-	return false
+	return paused_if_not_playing
 
 func get_music_track_info(idx : int):
 	if idx >= 0 and idx < _music_tracks.size():
@@ -220,7 +226,16 @@ func is_game_active() -> bool:
 
 func start_game(game_seed : float) -> void:
 	if not is_game_active():
+		_win_state = false
 		emit_signal("game_started", game_seed)
+
+func end_game(win : bool) -> void:
+	if is_game_active():
+		if _music_player != null and _music_player.playing:
+			_win_state = win
+			_music_player.stop()
+			_music_player.stream = null
+			#emit_signal("game_finished", win, _score)
 
 # -----------------------------------------------------------------------------
 # Handler Methods
@@ -229,4 +244,6 @@ func _on_beat(beat : int) -> void:
 	emit_signal("beat", beat)
 
 func _on_music_finished() -> void:
-	emit_signal("game_finished")
+	_music_player.stop()
+	_music_player.stream = null
+	emit_signal("game_finished", _win_state, _score)

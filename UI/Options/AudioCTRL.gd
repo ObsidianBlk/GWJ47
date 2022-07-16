@@ -43,7 +43,6 @@ func _on_music_changed(value : float) -> void:
 	Game.set_bus_volume(Game.BUS.MUSIC, value / 1000.0)
 
 func _on_bus_volume_change(id : int, vol : float) -> void:
-	print("Bus ", id, " volume : ", vol)
 	if _ignore_change:
 		_ignore_change = false
 	else:

@@ -58,6 +58,13 @@ func _ready() -> void:
 	Game.connect("game_started", self, "_on_game_started")
 	Game.connect("glow_state_changed", self, "_on_glow_state_changed")
 
+func _process(_delta : float) -> void:
+	if not Game.is_music_paused():
+		var viewport_size : Vector2 = get_viewport().size
+		if (_player_node.position.y - _player_node.size.y) > viewport_size.y:
+			clear()
+			Game.end_game(false)
+
 # -----------------------------------------------------------------------------
 # Private Methods
 # -----------------------------------------------------------------------------
@@ -152,13 +159,14 @@ func _on_glow_state_changed(glow_enabled : bool, intensity : float) -> void:
 
 
 func _on_heartbeat(beat : int = 0) -> void:
+	var viewport_size : Vector2 = get_viewport().size
 	var latest : Chunk = _GetLatestChunk()
 	if latest:
 		if latest.position.y + DROP_RATE > 0.0:
 			_AddNewChunk()
 	var lead : Chunk = _GetLeadChunk()
 	if lead:
-		if lead.position.y + DROP_RATE >= OS.window_size.y:
+		if lead.position.y + DROP_RATE >= viewport_size.y:
 			lead = null
 			_DropLeadChunk()
 	var include_player : bool = not _player_node.is_in_air()

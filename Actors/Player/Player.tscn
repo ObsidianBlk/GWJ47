@@ -1,9 +1,33 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Actors/Player/Player.gd" type="Script" id=1]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 32, 32 )
+
+[sub_resource type="Gradient" id=2]
+offsets = PoolRealArray( 0, 0.304348, 0.596273, 1 )
+colors = PoolColorArray( 0.290196, 0.435294, 0.27451, 1, 0.290196, 0.435294, 0.27451, 0, 0.290196, 0.435294, 0.27451, 0, 0.290196, 0.435294, 0.27451, 1 )
+
+[sub_resource type="GradientTexture" id=3]
+gradient = SubResource( 2 )
+width = 128
+
+[sub_resource type="ParticlesMaterial" id=4]
+emission_shape = 5
+emission_ring_radius = 32.0
+emission_ring_inner_radius = 30.0
+emission_ring_height = 1.0
+emission_ring_axis = Vector3( 0, 0, 1 )
+flag_disable_z = true
+gravity = Vector3( 0, 0, 0 )
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+linear_accel = 66.67
+radial_accel = -32.0
+radial_accel_random = 0.47
+scale = 4.0
+color_ramp = SubResource( 3 )
 
 [node name="Player" type="KinematicBody2D"]
 collision_layer = 8
@@ -44,3 +68,8 @@ cast_to = Vector2( 40, 0 )
 position = Vector2( 0, -16 )
 enabled = true
 cast_to = Vector2( 40, 0 )
+
+[node name="DashPosition" type="Particles2D" parent="."]
+emitting = false
+amount = 64
+process_material = SubResource( 4 )

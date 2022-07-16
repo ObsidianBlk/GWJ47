@@ -21,6 +21,7 @@ var _menu_stack : Array = []
 # Override Methods
 # -----------------------------------------------------------------------------
 func _ready() -> void:
+	Game.connect("game_finished", self, "_on_game_finished")
 	_ConnectToUI()
 	if initial_menu != "":
 		request_ui(initial_menu)
@@ -82,6 +83,11 @@ func close_ui() -> void:
 # Handler Methods
 # -----------------------------------------------------------------------------
 func _on_enter_game() -> void:
+	randomize()
 	get_tree().paused = false
 	request_ui("")
-	Game.start_game(3245678.0)
+	Game.start_game(randf() * 10000.0)
+
+func _on_game_finished(win : bool, _score : float) -> void:
+	if initial_menu != "":
+		request_ui(initial_menu)

@@ -56,6 +56,7 @@ onready var groundray2_node : RayCast2D = $GroundRay2
 onready var groundray3_node : RayCast2D = $GroundRay3
 
 onready var dashray_node : RayCast2D = $DashRay
+onready var dashpos_node : Particles2D = $DashPosition
 
 onready var wallgrab1_node : RayCast2D = $WallGrab1
 onready var wallgrab2_node : RayCast2D = $WallGrab2
@@ -120,9 +121,9 @@ func _ready() -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(-(size * 0.5), size), color, true, 1.0, false)
-	if _state == STATE.Dash and _dash_state == DASH.Charge:
-		var pos = (-size * 0.5) + dashray_node.cast_to
-		draw_rect(Rect2(pos, size), color, false, 4.0, true)
+#	if _state == STATE.Dash and _dash_state == DASH.Charge:
+#		var pos = (-size * 0.5) + dashray_node.cast_to
+#		draw_rect(Rect2(pos, size), color, false, 4.0, true)
 
 
 func _unhandled_input(event : InputEvent) -> void:
@@ -130,11 +131,11 @@ func _unhandled_input(event : InputEvent) -> void:
 	match _state:
 		STATE.Idle, STATE.Moving:
 			_HandleJumpEvents(event)
-			_HandleDashEvent(event)
 		STATE.Air, STATE.Dash:
-			_HandleDashEvent(event)
+			pass
 		STATE.Jump, STATE.WallGrab:
 			_HandleJumpEvents(event)
+	_HandleDashEvent(event)
 
 
 func _physics_process(delta : float) -> void:
@@ -181,7 +182,9 @@ func _ProcessDash(delta : float) -> void:
 				_UpdateDashRay()
 				_dash_accum = min(_dash_accum + (dash_strength * delta), dash_strength)
 				emit_signal("dash_updated", _dash_accum, dash_strength)
-				update()
+				dashpos_node.emitting = true
+				dashpos_node.position = dashray_node.cast_to
+				#update()
 			else:
 				_ProcessGroundRayStates()
 		DASH.Release:
@@ -198,6 +201,8 @@ func _ProcessDash(delta : float) -> void:
 					global_position += _direction.normalized() * _dash_accum
 			else:
 				pass # TODO: Maybe some powered explosion!
+			dashpos_node.emitting = false
+			dashpos_node.position = Vector2.ZERO
 			_velocity = Vector2.ZERO
 			dashray_node.cast_to = Vector2.ZERO
 			update()

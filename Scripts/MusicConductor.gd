@@ -33,7 +33,6 @@ func set_beats_per_minute(bpm : float) -> void:
 	if bpm > 0.0:
 		beats_per_minute = bpm
 		_beat_seconds = 60.0 / beats_per_minute
-		print("beats_per_minute: ", beats_per_minute)
 
 # ------------------------------------------------------------------------------
 # Override Methods
