@@ -190,8 +190,7 @@ func _ProcessDash(delta : float) -> void:
 				if dashray_node.is_colliding():
 					var obj = dashray_node.get_collider()
 					if obj and obj.has_method("hurt"):
-						print("Damaging strength: ", _dash_accum)
-						obj.hurt(1000.0)
+						obj.hurt(dash_strength)
 					var pos = dashray_node.get_collision_point()
 					global_position = pos - (_direction.normalized() * (size * 0.5))
 				else:

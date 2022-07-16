@@ -1,12 +1,43 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://Objects/Surface/Surface.gd" type="Script" id=1]
+
+[sub_resource type="Shader" id=2]
+resource_local_to_scene = true
+code = "shader_type canvas_item;
+
+uniform float intensity : hint_range(0.0, 1.0) = 0.0;
+
+float noise(vec2 pos){
+	return fract(sin(dot(pos, vec2(12.2321, 87.3123))) * 64352.2332);
+}
+
+float crackle(vec2 uv, float time){
+	float v1 = noise(uv);
+	float v2 = noise(uv * time);
+	bool r1 = int(asinh(time * v1) * 0.4) % 3 > 0;
+	bool r2 = int(acosh(time * v2) * 0.4) % 3 > 0;
+	return (r1 && r2) ? 1.0 : 0.0;
+}
+
+void fragment() {
+	float a = mix(1.0, crackle(UV, TIME), intensity);
+	vec4 color = vec4(1.0, 1.0, 1.0, a);
+	COLOR = color;
+}"
+
+[sub_resource type="ShaderMaterial" id=3]
+resource_local_to_scene = true
+shader = SubResource( 2 )
+shader_param/intensity = 0.0
 
 [sub_resource type="RectangleShape2D" id=1]
 resource_local_to_scene = true
 extents = Vector2( 32, 32 )
 
 [node name="Surface" type="StaticBody2D"]
+modulate = Color( 0.44, 0.5, 0.56, 1 )
+material = SubResource( 3 )
 script = ExtResource( 1 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

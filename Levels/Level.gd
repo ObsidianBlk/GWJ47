@@ -41,6 +41,8 @@ var _chunk_stack : Array = []
 # -----------------------------------------------------------------------------
 onready var _player_node : KinematicBody2D = $Player
 
+onready var _env : WorldEnvironment = $WorldEnvironment
+
 # -----------------------------------------------------------------------------
 # Setters
 # -----------------------------------------------------------------------------
@@ -54,6 +56,7 @@ func _ready() -> void:
 	
 	Game.connect("beat", self, "_on_heartbeat")
 	Game.connect("game_started", self, "_on_game_started")
+	Game.connect("glow_state_changed", self, "_on_glow_state_changed")
 
 # -----------------------------------------------------------------------------
 # Private Methods
@@ -143,6 +146,10 @@ func _on_max_height_reached(chunk : Node2D) -> void:
 	_DropChunk(chunk)
 	_AddNewChunk()
 
+func _on_glow_state_changed(glow_enabled : bool, intensity : float) -> void:
+	_env.environment.glow_enabled = glow_enabled
+	_env.environment.glow_intensity = intensity
+
 
 func _on_heartbeat(beat : int = 0) -> void:
 	var latest : Chunk = _GetLatestChunk()
@@ -157,6 +164,8 @@ func _on_heartbeat(beat : int = 0) -> void:
 	var include_player : bool = not _player_node.is_in_air()
 	for chunk in _chunk_stack:
 		chunk.position.y += DROP_RATE
+		if Game.is_beat_pulse_enabled():
+			chunk.pulse()
 	#if not _player_node.is_in_air():
 	if include_player:
 		_player_node.drop_if_not_in_air(DROP_RATE)

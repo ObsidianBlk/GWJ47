@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://addons/eim/ui/InputBinder/InputBinder.tscn" type="PackedScene" id=1]
 [ext_resource path="res://UI/Options/AudioCTRL.gd" type="Script" id=2]
 [ext_resource path="res://UI/Options/Options.gd" type="Script" id=3]
 [ext_resource path="res://Theme/base.theme" type="Theme" id=4]
+[ext_resource path="res://UI/Options/EffectsCTRL.gd" type="Script" id=5]
 
 [node name="Options" type="CenterContainer"]
 anchor_right = 1.0
@@ -41,7 +42,71 @@ margin_bottom = 396.0
 size_flags_vertical = 3
 tab_align = 0
 
+[node name="Effects" type="VBoxContainer" parent="Panel/Controls/TabContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 42.0
+margin_right = -4.0
+margin_bottom = -4.0
+script = ExtResource( 5 )
+
+[node name="GlowCtrls" type="GridContainer" parent="Panel/Controls/TabContainer/Effects"]
+margin_right = 628.0
+margin_bottom = 62.0
+columns = 2
+
+[node name="LBL_Glow" type="Label" parent="Panel/Controls/TabContainer/Effects/GlowCtrls"]
+margin_top = 11.0
+margin_right = 96.0
+margin_bottom = 29.0
+text = "Level Glow: "
+
+[node name="BTN_Glow" type="CheckButton" parent="Panel/Controls/TabContainer/Effects/GlowCtrls"]
+margin_left = 100.0
+margin_right = 176.0
+margin_bottom = 40.0
+size_flags_horizontal = 0
+
+[node name="LBL_Glow_Intensity" type="Label" parent="Panel/Controls/TabContainer/Effects/GlowCtrls"]
+margin_top = 44.0
+margin_right = 96.0
+margin_bottom = 62.0
+text = "Glow Intensity: "
+
+[node name="HSlider" type="HSlider" parent="Panel/Controls/TabContainer/Effects/GlowCtrls"]
+margin_left = 100.0
+margin_top = 44.0
+margin_right = 628.0
+margin_bottom = 60.0
+size_flags_horizontal = 3
+tick_count = 10
+
+[node name="HSeparator" type="HSeparator" parent="Panel/Controls/TabContainer/Effects"]
+margin_top = 66.0
+margin_right = 628.0
+margin_bottom = 70.0
+
+[node name="PulseCtrls" type="GridContainer" parent="Panel/Controls/TabContainer/Effects"]
+margin_top = 74.0
+margin_right = 628.0
+margin_bottom = 114.0
+columns = 2
+
+[node name="LBL_Pulse" type="Label" parent="Panel/Controls/TabContainer/Effects/PulseCtrls"]
+margin_top = 11.0
+margin_right = 87.0
+margin_bottom = 29.0
+text = "Pulse to Beat:"
+
+[node name="BTN_Pulse" type="CheckButton" parent="Panel/Controls/TabContainer/Effects/PulseCtrls"]
+margin_left = 91.0
+margin_right = 167.0
+margin_bottom = 40.0
+size_flags_horizontal = 0
+
 [node name="Audio" type="GridContainer" parent="Panel/Controls/TabContainer"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0

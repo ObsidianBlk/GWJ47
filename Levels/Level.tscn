@@ -1,8 +1,163 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://Actors/Player/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Objects/Surface/Surface.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Levels/Level.gd" type="Script" id=3]
+
+[sub_resource type="Shader" id=1]
+resource_local_to_scene = true
+code = "shader_type canvas_item;
+
+uniform vec4 base_color : hint_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform vec4 dmg_base_color : hint_color = vec4(1.0, 0.5, 0.0, 1.0);
+uniform vec4 crit_base_color : hint_color = vec4(1.0, 0.0, 0.0, 1.0);
+uniform float color_shift : hint_range(0.0, 1.0) = 1.0;
+
+uniform float flare : hint_range(0.0, 1.0) = 0.0;
+
+uniform float immortal_thickness : hint_range(0.0, 0.5) = 0.1;
+uniform bool immortal = false;
+
+float fnormalize(float from, float to, float v){
+	float dist = to - from;
+	if (dist == 0.0)
+		return 0.0;
+	return v / dist;
+}
+
+bool uvimmortal(vec2 uv){
+	if (immortal){
+		float uv_max = 1.0 - immortal_thickness;
+		if (uv.x <= immortal_thickness || uv.x >= uv_max || uv.y <= immortal_thickness || uv.y >= uv_max)
+			return true;
+	}
+	return false;
+}
+
+float crackle(float time, vec2 uv){
+	float e = 1.0 - (time - floor(time));
+	bool valA = int(sin(time * uv.x) * 33.0) % 3 > 0;
+	bool valB = int(cos(time * mod(uv.y + e, 1.0)) * 66.0) % 3 > 0;
+	return (valA && valB) ? 1.0 : 0.0;
+}
+
+vec4 get_base_color(float time, vec2 uv){
+	vec4 c = base_color;
+	if (!immortal){
+		if (color_shift <= 0.7 && color_shift > 0.3){
+			vec4 tcolor = mix(base_color, dmg_base_color, 0.5);
+			c = mix(base_color, tcolor, 1.0 - fnormalize(0.3, 0.7, color_shift));
+		} else if (color_shift <= 0.3) {
+			vec4 tcolor = mix(base_color, crit_base_color, 0.5);
+			c = mix(base_color, tcolor, 1.0 - fnormalize(0.0, 0.3, color_shift));
+			c.a = crackle(time, uv);
+		}
+	}
+	return c;
+}
+
+void fragment() {
+	vec4 color = get_base_color(TIME * 0.5, UV);
+	if (uvimmortal(UV)){
+		color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), 0.25);
+		color.a = crackle(TIME * 0.1, UV);
+	} else if (flare > 0.0){
+		color = vec4(mix(color.rgb, vec3(1,1,1), flare), color.a);
+	}
+	COLOR = color;
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+resource_local_to_scene = true
+shader = SubResource( 1 )
+shader_param/base_color = Color( 0.44, 0.5, 0.56, 1 )
+shader_param/dmg_base_color = Color( 1, 0.5, 0, 1 )
+shader_param/crit_base_color = Color( 1, 0, 0, 1 )
+shader_param/color_shift = 1.0
+shader_param/flare = 0.0
+shader_param/immortal_thickness = 0.1
+shader_param/immortal = false
+
+[sub_resource type="Shader" id=3]
+resource_local_to_scene = true
+code = "shader_type canvas_item;
+
+uniform vec4 base_color : hint_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform vec4 dmg_base_color : hint_color = vec4(1.0, 0.5, 0.0, 1.0);
+uniform vec4 crit_base_color : hint_color = vec4(1.0, 0.0, 0.0, 1.0);
+uniform float color_shift : hint_range(0.0, 1.0) = 1.0;
+
+uniform float flare : hint_range(0.0, 1.0) = 0.0;
+
+uniform float immortal_thickness : hint_range(0.0, 0.5) = 0.1;
+uniform bool immortal = false;
+
+float fnormalize(float from, float to, float v){
+	float dist = to - from;
+	if (dist == 0.0)
+		return 0.0;
+	return v / dist;
+}
+
+bool uvimmortal(vec2 uv){
+	if (immortal){
+		float uv_max = 1.0 - immortal_thickness;
+		if (uv.x <= immortal_thickness || uv.x >= uv_max || uv.y <= immortal_thickness || uv.y >= uv_max)
+			return true;
+	}
+	return false;
+}
+
+float crackle(float time, vec2 uv){
+	float e = 1.0 - (time - floor(time));
+	bool valA = int(sin(time * uv.x) * 33.0) % 3 > 0;
+	bool valB = int(cos(time * mod(uv.y + e, 1.0)) * 66.0) % 3 > 0;
+	return (valA && valB) ? 1.0 : 0.0;
+}
+
+vec4 get_base_color(float time, vec2 uv){
+	vec4 c = base_color;
+	if (!immortal){
+		if (color_shift <= 0.7 && color_shift > 0.3){
+			vec4 tcolor = mix(base_color, dmg_base_color, 0.5);
+			c = mix(base_color, tcolor, 1.0 - fnormalize(0.3, 0.7, color_shift));
+		} else if (color_shift <= 0.3) {
+			vec4 tcolor = mix(base_color, crit_base_color, 0.5);
+			c = mix(base_color, tcolor, 1.0 - fnormalize(0.0, 0.3, color_shift));
+			c.a = crackle(time, uv);
+		}
+	}
+	return c;
+}
+
+void fragment() {
+	vec4 color = get_base_color(TIME * 0.5, UV);
+	if (uvimmortal(UV)){
+		color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), 0.25);
+		color.a = crackle(TIME * 0.1, UV);
+	} else if (flare > 0.0){
+		color = vec4(mix(color.rgb, vec3(1,1,1), flare), color.a);
+	}
+	COLOR = color;
+}"
+
+[sub_resource type="ShaderMaterial" id=4]
+resource_local_to_scene = true
+shader = SubResource( 3 )
+shader_param/base_color = Color( 0.44, 0.5, 0.56, 1 )
+shader_param/dmg_base_color = Color( 1, 0.5, 0, 1 )
+shader_param/crit_base_color = Color( 1, 0, 0, 1 )
+shader_param/color_shift = 1.0
+shader_param/flare = 0.0
+shader_param/immortal_thickness = 0.1
+shader_param/immortal = false
+
+[sub_resource type="Environment" id=5]
+background_mode = 4
+glow_enabled = true
+glow_strength = 0.8
+glow_blend_mode = 0
+glow_bicubic_upscale = true
 
 [node name="Level" type="Node2D"]
 script = ExtResource( 3 )
@@ -10,14 +165,27 @@ script = ExtResource( 3 )
 [node name="StaticGeometry" type="Node2D" parent="."]
 
 [node name="Surface_Left" parent="StaticGeometry" instance=ExtResource( 2 )]
+material = SubResource( 2 )
 position = Vector2( -8, 540 )
 size = Vector2( 16, 1080 )
 immortal = true
 
 [node name="Surface_Right" parent="StaticGeometry" instance=ExtResource( 2 )]
+material = SubResource( 4 )
 position = Vector2( 1928, 540 )
 size = Vector2( 16, 1080 )
 immortal = true
 
 [node name="Player" parent="." instance=ExtResource( 1 )]
 position = Vector2( -111, 189 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 5 )
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = -4
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )

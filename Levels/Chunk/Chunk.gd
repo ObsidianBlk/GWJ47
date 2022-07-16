@@ -6,6 +6,7 @@ class_name Chunk
 # Signal
 # -----------------------------------------------------------------------------
 signal max_height_reached()
+signal pulsed()
 
 # -----------------------------------------------------------------------------
 # Constants
@@ -262,7 +263,8 @@ func generate(gen_seed : float, width : float, player_size : float, base : bool 
 				pos2D.position = pos + (size * 0.5)
 				break
 
-
+func pulse() -> void:
+	emit_signal("pulsed")
 
 
 func has_player_start() -> bool:
