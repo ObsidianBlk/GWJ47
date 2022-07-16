@@ -96,6 +96,8 @@ func hurt(amount : float) -> void:
 	if not immortal:
 		_hp -= amount
 		if _hp < 0.0:
+			var score = int(max(1.0, (size.x * size.y) / 2000.0))
+			Game.add_to_score(score)
 			queue_free()
 		else:
 			update()

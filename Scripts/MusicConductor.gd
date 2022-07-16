@@ -44,6 +44,7 @@ func _ready() -> void:
 	add_child(_timer)
 	_timer.one_shot = true
 	_timer.connect("timeout", self, "_on_timeout")
+	Game.set_music_audio_stream(self)
 
 func _physics_process(_delta : float) -> void:
 	if playing:

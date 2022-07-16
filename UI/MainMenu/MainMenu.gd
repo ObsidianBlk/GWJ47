@@ -22,7 +22,7 @@ func _ready() -> void:
 # Private Methods
 # -----------------------------------------------------------------------------
 func _GrabFocus() -> void:
-	$MC/VBC/Options/Buttons/EnterGame.grab_focus()
+	$MC/VBC/Options/Panel/Buttons/EnterGame.grab_focus()
 
 # -----------------------------------------------------------------------------
 # Handler Methods

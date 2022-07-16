@@ -1,12 +1,14 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://UI/MainMenu/OBSLogo.png" type="Texture" id=1]
 [ext_resource path="res://UI/MainMenu/GWJ-Logo-NoTitle.svg" type="Texture" id=2]
 [ext_resource path="res://UI/MainMenu/MainMenu.gd" type="Script" id=3]
+[ext_resource path="res://Theme/base.theme" type="Theme" id=4]
 
 [node name="MainMenu" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme = ExtResource( 4 )
 script = ExtResource( 3 )
 
 [node name="MC" type="MarginContainer" parent="."]
@@ -28,53 +30,64 @@ margin_right = 1872.0
 margin_bottom = 964.0
 size_flags_vertical = 3
 
-[node name="Buttons" type="VBoxContainer" parent="MC/VBC/Options"]
-margin_right = 83.0
+[node name="Panel" type="PanelContainer" parent="MC/VBC/Options"]
+margin_right = 112.0
 margin_bottom = 964.0
 
-[node name="Spacer_Top" type="Control" parent="MC/VBC/Options/Buttons"]
-margin_right = 83.0
-margin_bottom = 444.0
+[node name="Buttons" type="VBoxContainer" parent="MC/VBC/Options/Panel"]
+margin_left = 2.0
+margin_top = 2.0
+margin_right = 110.0
+margin_bottom = 962.0
+
+[node name="Spacer_Top" type="Control" parent="MC/VBC/Options/Panel/Buttons"]
+margin_right = 108.0
+margin_bottom = 431.0
 size_flags_vertical = 3
 
-[node name="EnterGame" type="Button" parent="MC/VBC/Options/Buttons"]
-margin_top = 448.0
-margin_right = 83.0
-margin_bottom = 468.0
-focus_neighbour_bottom = NodePath("../Quit")
-focus_next = NodePath("../Quit")
+[node name="EnterGame" type="Button" parent="MC/VBC/Options/Panel/Buttons"]
+margin_top = 435.0
+margin_right = 108.0
+margin_bottom = 462.0
+focus_neighbour_right = NodePath("../../../../About/OBS")
+focus_neighbour_bottom = NodePath("../Options")
+focus_next = NodePath("../Options")
 text = "Start Game"
 flat = true
 align = 0
 
-[node name="Options" type="Button" parent="MC/VBC/Options/Buttons"]
-margin_top = 472.0
-margin_right = 83.0
-margin_bottom = 492.0
+[node name="Options" type="Button" parent="MC/VBC/Options/Panel/Buttons"]
+margin_top = 466.0
+margin_right = 108.0
+margin_bottom = 493.0
+focus_neighbour_top = NodePath("../EnterGame")
+focus_neighbour_right = NodePath("../../../../About/OBS")
 focus_neighbour_bottom = NodePath("../Quit")
 focus_next = NodePath("../Quit")
+focus_previous = NodePath("../EnterGame")
 text = "Options"
 flat = true
 align = 0
 
-[node name="Quit" type="Button" parent="MC/VBC/Options/Buttons"]
-margin_top = 496.0
-margin_right = 83.0
-margin_bottom = 516.0
-focus_neighbour_top = NodePath("../EnterGame")
-focus_previous = NodePath("../EnterGame")
+[node name="Quit" type="Button" parent="MC/VBC/Options/Panel/Buttons"]
+margin_top = 497.0
+margin_right = 108.0
+margin_bottom = 524.0
+focus_neighbour_top = NodePath("../Options")
+focus_neighbour_right = NodePath("../../../../About/OBS")
+focus_previous = NodePath("../Options")
 text = "Quit"
 flat = true
 align = 0
 
-[node name="Spacer_Bottom" type="Control" parent="MC/VBC/Options/Buttons"]
-margin_top = 520.0
-margin_right = 83.0
-margin_bottom = 964.0
+[node name="Spacer_Bottom" type="Control" parent="MC/VBC/Options/Panel/Buttons"]
+margin_top = 528.0
+margin_right = 108.0
+margin_bottom = 960.0
 size_flags_vertical = 3
 
 [node name="Control" type="Control" parent="MC/VBC/Options"]
-margin_left = 87.0
+margin_left = 116.0
 margin_right = 1872.0
 margin_bottom = 964.0
 size_flags_horizontal = 3
@@ -88,6 +101,11 @@ rect_min_size = Vector2( 0, 64 )
 [node name="OBS" type="TextureButton" parent="MC/VBC/About"]
 margin_right = 621.0
 margin_bottom = 64.0
+focus_neighbour_left = NodePath("../../Options/Panel/Buttons/EnterGame")
+focus_neighbour_top = NodePath("../../Options/Panel/Buttons/EnterGame")
+focus_neighbour_right = NodePath("../GWJ")
+focus_next = NodePath("../GWJ")
+focus_previous = NodePath("../../Options/Panel/Buttons/EnterGame")
 size_flags_horizontal = 3
 texture_normal = ExtResource( 1 )
 expand = true
@@ -104,12 +122,15 @@ self_modulate = Color( 0.945098, 0.388235, 0.298039, 1 )
 margin_left = 1250.0
 margin_right = 1872.0
 margin_bottom = 64.0
+focus_neighbour_left = NodePath("../OBS")
+focus_neighbour_top = NodePath("../../Options/Panel/Buttons/EnterGame")
+focus_previous = NodePath("../OBS")
 size_flags_horizontal = 3
 texture_normal = ExtResource( 2 )
 expand = true
 stretch_mode = 5
 
-[connection signal="pressed" from="MC/VBC/Options/Buttons/EnterGame" to="." method="_on_EnterGame_pressed"]
-[connection signal="pressed" from="MC/VBC/Options/Buttons/Options" to="." method="_on_Options_pressed"]
-[connection signal="pressed" from="MC/VBC/Options/Buttons/Quit" to="." method="_on_Quit_pressed"]
+[connection signal="pressed" from="MC/VBC/Options/Panel/Buttons/EnterGame" to="." method="_on_EnterGame_pressed"]
+[connection signal="pressed" from="MC/VBC/Options/Panel/Buttons/Options" to="." method="_on_Options_pressed"]
+[connection signal="pressed" from="MC/VBC/Options/Panel/Buttons/Quit" to="." method="_on_Quit_pressed"]
 [connection signal="pressed" from="MC/VBC/About/GWJ" to="." method="_on_GWJ_pressed"]

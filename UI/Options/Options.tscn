@@ -1,12 +1,14 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://addons/eim/ui/InputBinder/InputBinder.tscn" type="PackedScene" id=1]
 [ext_resource path="res://UI/Options/AudioCTRL.gd" type="Script" id=2]
 [ext_resource path="res://UI/Options/Options.gd" type="Script" id=3]
+[ext_resource path="res://Theme/base.theme" type="Theme" id=4]
 
 [node name="Options" type="CenterContainer"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme = ExtResource( 4 )
 script = ExtResource( 3 )
 
 [node name="Panel" type="PanelContainer" parent="."]
@@ -17,25 +19,25 @@ margin_bottom = 740.0
 rect_min_size = Vector2( 640, 400 )
 
 [node name="Controls" type="VBoxContainer" parent="Panel"]
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 633.0
-margin_bottom = 393.0
+margin_left = 2.0
+margin_top = 2.0
+margin_right = 638.0
+margin_bottom = 398.0
 
 [node name="Label" type="Label" parent="Panel/Controls"]
-margin_right = 626.0
-margin_bottom = 14.0
+margin_right = 636.0
+margin_bottom = 18.0
 text = "Options"
 
 [node name="HSeparator" type="HSeparator" parent="Panel/Controls"]
-margin_top = 18.0
-margin_right = 626.0
-margin_bottom = 22.0
+margin_top = 22.0
+margin_right = 636.0
+margin_bottom = 26.0
 
 [node name="TabContainer" type="TabContainer" parent="Panel/Controls"]
-margin_top = 26.0
-margin_right = 626.0
-margin_bottom = 386.0
+margin_top = 30.0
+margin_right = 636.0
+margin_bottom = 396.0
 size_flags_vertical = 3
 tab_align = 0
 
@@ -43,7 +45,7 @@ tab_align = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
-margin_top = 32.0
+margin_top = 42.0
 margin_right = -4.0
 margin_bottom = -4.0
 custom_constants/vseparation = 32
@@ -51,45 +53,44 @@ columns = 2
 script = ExtResource( 2 )
 
 [node name="LBL_Master" type="Label" parent="Panel/Controls/TabContainer/Audio"]
-margin_top = 1.0
-margin_right = 52.0
-margin_bottom = 15.0
+margin_right = 50.0
+margin_bottom = 18.0
 text = "Master: "
 
 [node name="HS_Master" type="HSlider" parent="Panel/Controls/TabContainer/Audio"]
-margin_left = 56.0
-margin_right = 618.0
+margin_left = 54.0
+margin_right = 628.0
 margin_bottom = 16.0
 size_flags_horizontal = 3
 max_value = 1000.0
 tick_count = 10
 
 [node name="LBL_SFX" type="Label" parent="Panel/Controls/TabContainer/Audio"]
-margin_top = 49.0
-margin_right = 52.0
-margin_bottom = 63.0
+margin_top = 50.0
+margin_right = 50.0
+margin_bottom = 68.0
 text = "SFX: "
 
 [node name="HS_SFX" type="HSlider" parent="Panel/Controls/TabContainer/Audio"]
-margin_left = 56.0
-margin_top = 48.0
-margin_right = 618.0
-margin_bottom = 64.0
+margin_left = 54.0
+margin_top = 50.0
+margin_right = 628.0
+margin_bottom = 66.0
 size_flags_horizontal = 3
 max_value = 1000.0
 tick_count = 10
 
 [node name="LBL_Music" type="Label" parent="Panel/Controls/TabContainer/Audio"]
-margin_top = 97.0
-margin_right = 52.0
-margin_bottom = 111.0
+margin_top = 100.0
+margin_right = 50.0
+margin_bottom = 118.0
 text = "Music: "
 
 [node name="HS_Music" type="HSlider" parent="Panel/Controls/TabContainer/Audio"]
-margin_left = 56.0
-margin_top = 96.0
-margin_right = 618.0
-margin_bottom = 112.0
+margin_left = 54.0
+margin_top = 100.0
+margin_right = 628.0
+margin_bottom = 116.0
 size_flags_horizontal = 3
 max_value = 1000.0
 tick_count = 10

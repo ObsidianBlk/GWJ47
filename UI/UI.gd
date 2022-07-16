@@ -35,8 +35,10 @@ func _unhandled_input(event : InputEvent) -> void:
 	elif event.is_action_pressed("game_escape") and Game.is_game_active():
 		if get_tree().paused:
 			get_tree().paused = false
+			Game.pause_music(false)
 			request_ui("")
 		elif initial_menu != "":
+			Game.pause_music(true)
 			get_tree().paused = true
 			request_ui(initial_menu)
 
@@ -82,6 +84,4 @@ func close_ui() -> void:
 func _on_enter_game() -> void:
 	get_tree().paused = false
 	request_ui("")
-	emit_signal("game", false)
-#	if not Game.is_game_active():
-#		Game.load_level(Game.DEFAULT_LEVEL)
+	Game.start_game(3245678.0)

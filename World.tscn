@@ -16,7 +16,6 @@ bus = "Music"
 script = ExtResource( 5 )
 
 [node name="Level" parent="." instance=ExtResource( 4 )]
-beat_stream_nodepath = NodePath("../AudioStreamPlayer")
 
 [node name="UI" type="CanvasLayer" parent="."]
 pause_mode = 2
@@ -24,7 +23,6 @@ script = ExtResource( 2 )
 initial_menu = "MainMenu"
 
 [node name="MainMenu" parent="UI" instance=ExtResource( 3 )]
-visible = false
 
 [node name="Options" parent="UI" instance=ExtResource( 7 )]
 visible = false

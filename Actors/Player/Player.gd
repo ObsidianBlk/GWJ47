@@ -120,6 +120,9 @@ func _ready() -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(-(size * 0.5), size), color, true, 1.0, false)
+	if _state == STATE.Dash and _dash_state == DASH.Charge:
+		var pos = (-size * 0.5) + dashray_node.cast_to
+		draw_rect(Rect2(pos, size), color, false, 4.0, true)
 
 
 func _unhandled_input(event : InputEvent) -> void:
@@ -178,6 +181,7 @@ func _ProcessDash(delta : float) -> void:
 				_UpdateDashRay()
 				_dash_accum = min(_dash_accum + (dash_strength * delta), dash_strength)
 				emit_signal("dash_updated", _dash_accum, dash_strength)
+				update()
 			else:
 				_ProcessGroundRayStates()
 		DASH.Release:
@@ -186,7 +190,8 @@ func _ProcessDash(delta : float) -> void:
 				if dashray_node.is_colliding():
 					var obj = dashray_node.get_collider()
 					if obj and obj.has_method("hurt"):
-						obj.hurt(_dash_accum)
+						print("Damaging strength: ", _dash_accum)
+						obj.hurt(1000.0)
 					var pos = dashray_node.get_collision_point()
 					global_position = pos - (_direction.normalized() * (size * 0.5))
 				else:
@@ -196,6 +201,7 @@ func _ProcessDash(delta : float) -> void:
 				pass # TODO: Maybe some powered explosion!
 			_velocity = Vector2.ZERO
 			dashray_node.cast_to = Vector2.ZERO
+			update()
 			_ProcessGroundRayStates()
 
 func _ProcessVelocity_v(delta : float) -> void:

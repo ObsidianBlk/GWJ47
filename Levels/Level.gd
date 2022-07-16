@@ -20,14 +20,12 @@ const CHUNK_OBJ : PackedScene = preload("res://Levels/Chunk/Chunk.tscn")
 #	preload("res://Chunks/Bases/Base_002.tscn")
 #]
 
-const DROP_RATE : float = 8.0
+const DROP_RATE : float = 30.0
 
 
 # -----------------------------------------------------------------------------
 # Export Variables
 # -----------------------------------------------------------------------------
-export var level_seed : float = 2345790.0
-export var beat_stream_nodepath : NodePath = ""
 
 # -----------------------------------------------------------------------------
 # Variables
@@ -46,11 +44,6 @@ onready var _player_node : KinematicBody2D = $Player
 # -----------------------------------------------------------------------------
 # Setters
 # -----------------------------------------------------------------------------
-func set_level_seed(s : float) -> void:
-	level_seed = s
-	if _rng == null:
-		_rng = RandomNumberGenerator.new()
-	_rng.seed = level_seed
 
 # -----------------------------------------------------------------------------
 # Override Methods
@@ -58,13 +51,9 @@ func set_level_seed(s : float) -> void:
 func _ready() -> void:
 	if _rng == null:
 		_rng = RandomNumberGenerator.new()
-	_rng.seed = level_seed
 	
-	var beat_stream = get_node_or_null(beat_stream_nodepath)
-	if beat_stream == null or not beat_stream.has_method("play_beat_delayed"):
-		printerr("Failed to find beat generating audio stream player.")
-	else:
-		beat_stream.connect("beat", self, "_on_heartbeat")
+	Game.connect("beat", self, "_on_heartbeat")
+	Game.connect("game_started", self, "_on_game_started")
 
 # -----------------------------------------------------------------------------
 # Private Methods
@@ -116,7 +105,7 @@ func _DropLeadChunk() -> void:
 # -----------------------------------------------------------------------------
 # Public Methods
 # -----------------------------------------------------------------------------
-func fill_level() -> void:
+func fill_level(level_seed : float) -> void:
 	_rng.seed = level_seed
 	if _chunk_seed_list.size() > 0:
 		_chunk_seed_list.clear()
@@ -154,6 +143,7 @@ func _on_max_height_reached(chunk : Node2D) -> void:
 	_DropChunk(chunk)
 	_AddNewChunk()
 
+
 func _on_heartbeat(beat : int = 0) -> void:
 	var latest : Chunk = _GetLatestChunk()
 	if latest:
@@ -171,30 +161,11 @@ func _on_heartbeat(beat : int = 0) -> void:
 	if include_player:
 		_player_node.drop_if_not_in_air(DROP_RATE)
 
-func _on_game(restart : bool) -> void:
-	var beat_stream = get_node_or_null(beat_stream_nodepath)
-	if beat_stream == null or not beat_stream.has_method("play_beat_delayed"):
-		printerr("Failed to find beat generating audio stream player.")
-		return
-	
-	if restart:
-		clear()
-	if _chunk_stack.size() <= 0:
-		fill_level()
-	
-	if beat_stream.playing:
-		beat_stream.stream_paused = not beat_stream.stream_paused
-	else:
-		var music_count = Game.music_track_count()
-		if music_count > 0:
-			var music_info = Game.get_music_track_info(_rng.randi_range(0, music_count - 1))
-			if music_info != null:
-				print("Playing: ", music_info.name)
-				beat_stream.stream = load(music_info.filepath)
-				beat_stream.beats_per_minute = music_info.bpm
-				beat_stream.play_beat_delayed(4)
-			else:
-				print("Failed to find music")
-		else:
-			print("No music info found")
+
+func _on_game_started(game_seed : float) -> void:
+	clear()
+	fill_level(game_seed)
+	var music_count = Game.music_track_count()
+	if music_count > 0:
+		Game.play_track(_rng.randi_range(0, music_count - 1))
 
