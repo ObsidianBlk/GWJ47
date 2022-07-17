@@ -178,3 +178,4 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 group_name = "game_controls"
 enable_mouse_bindings = false
+merge_joy_button_axis = true
