@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://Actors/Player/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Objects/Surface/Surface.tscn" type="PackedScene" id=2]
@@ -164,6 +164,44 @@ glow_strength = 0.8
 glow_blend_mode = 0
 glow_bicubic_upscale = true
 
+[sub_resource type="Shader" id=7]
+code = "/*
+	動的電子背景シェーダー by あるる（きのもと 結衣） @arlez80
+	Procedural Electric Background Shader by Yui Kinomoto @arlez80
+
+	MIT License
+*/
+// Obtained from: https://godotshaders.com/shader/procedural-electric-background-shader/
+shader_type canvas_item;
+
+uniform vec4 background_color : hint_color = vec4( 0.0, 0.0, 0.0, 1.0 );
+uniform vec4 line_color : hint_color = vec4( 0.0, 1.0, 1.0, 1.0 );
+uniform float line_freq = 9.56;
+uniform float height = 0.6;
+uniform float speed = 0.8;
+uniform vec2 scale = vec2( 2.0, 16.0 );
+
+void fragment( )
+{
+	vec2 uv = UV * scale;
+	float shift = cos( floor( uv.y ) );
+	uv.x += shift;
+
+	float freq = clamp( cos( uv.x * line_freq ) * 3.0, 0.0, 1.0 ) * height;
+	float line = 1.0 - clamp( abs( freq - mod( uv.y, 1.0 ) ) * 11.0, 0.0, 1.0 );
+
+	COLOR = mix( background_color, line_color, line * mod( uv.x - TIME * speed * abs( shift ), 1.0 ) /*  * mod( TIME + shift, 1.0 ) */ );
+}"
+
+[sub_resource type="ShaderMaterial" id=8]
+shader = SubResource( 7 )
+shader_param/background_color = Color( 0, 0, 0, 1 )
+shader_param/line_color = Color( 0.733333, 0.764706, 0.658824, 1 )
+shader_param/line_freq = 9.56
+shader_param/height = 0.2
+shader_param/speed = 0.8
+shader_param/scale = Vector2( 8, 32 )
+
 [node name="Level" type="Node2D"]
 script = ExtResource( 3 )
 
@@ -205,7 +243,8 @@ environment = SubResource( 5 )
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 layer = -4
 
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+[node name="Background" type="ColorRect" parent="CanvasLayer"]
+material = SubResource( 8 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color( 0, 0, 0, 1 )

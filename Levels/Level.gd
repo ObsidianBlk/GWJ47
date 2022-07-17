@@ -44,6 +44,8 @@ onready var _player_node : KinematicBody2D = $Player
 onready var _env : WorldEnvironment = $WorldEnvironment
 onready var _beattarget : Node2D = $BeatTarget
 
+onready var _background : ColorRect = $CanvasLayer/Background
+
 # -----------------------------------------------------------------------------
 # Setters
 # -----------------------------------------------------------------------------
@@ -58,10 +60,17 @@ func _ready() -> void:
 	Game.connect("beat", self, "_on_heartbeat")
 	Game.connect("subbeat", self, "_on_subbeat")
 	Game.connect("game_started", self, "_on_game_started")
+	Game.connect("game_finished", self, "_on_game_finished")
 	Game.connect("glow_state_changed", self, "_on_glow_state_changed")
 
-func _process(_delta : float) -> void:
+func _process(delta : float) -> void:
 	if not Game.is_music_paused():
+		var mat = _background.get_material()
+		if mat != null:
+			var line_height : float = mat.get_shader_param("height")
+			if line_height > 0.2:
+				line_height = max(0.2, line_height - (0.4 * delta))
+				mat.set_shader_param("height", line_height)
 		var viewport_size : Vector2 = get_viewport().size
 		if (_player_node.position.y - _player_node.size.y) > viewport_size.y:
 			clear()
@@ -70,6 +79,12 @@ func _process(_delta : float) -> void:
 # -----------------------------------------------------------------------------
 # Private Methods
 # -----------------------------------------------------------------------------
+func _PulseBackground() -> void:
+	var mat = _background.get_material()
+	if mat != null:
+		mat.set_shader_param("height", 0.6)
+
+
 func _GetLatestChunk() -> Node2D:
 	if _chunk_stack.size() <= 0:
 		return null
@@ -94,7 +109,8 @@ func _AddNewChunk(base : bool = false) -> void:
 		chunk.position = Vector2(0.0, 1080.0 - chunk.height)
 	else:
 		chunk.position = _GetLatestChunk().position - Vector2(0.0, chunk.height)
-	add_child(chunk)
+	add_child_below_node($StaticGeometry, chunk)
+	#add_child(chunk)
 	_chunk_stack.append(chunk)
 
 
@@ -161,12 +177,6 @@ func _on_glow_state_changed(glow_enabled : bool, intensity : float) -> void:
 	_env.environment.glow_intensity = intensity
 
 
-func _on_subbeat() -> void:
-	pass
-	#if Game.is_beat_pulse_enabled():
-	#	for chunk in _chunk_stack:
-	#		chunk.pulse()
-
 func _on_heartbeat(beat : int = 0) -> void:
 	var viewport_size : Vector2 = get_viewport().size
 	var latest : Chunk = _GetLatestChunk()
@@ -186,6 +196,7 @@ func _on_heartbeat(beat : int = 0) -> void:
 	if not _player_node.is_in_air():
 		_player_node.drop_if_not_in_air(DROP_RATE)
 	_player_node.pulse()
+	_PulseBackground()
 
 
 func _on_game_started(game_seed : float) -> void:
@@ -196,3 +207,6 @@ func _on_game_started(game_seed : float) -> void:
 		Game.play_track(0)
 		#Game.play_track(_rng.randi_range(0, music_count - 1))
 
+func _on_game_finished(win : bool, score : int) -> void:
+	_beattarget.deactivate()
+	clear()

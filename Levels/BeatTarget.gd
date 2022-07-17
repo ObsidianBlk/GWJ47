@@ -66,6 +66,12 @@ func set_seed(rng_seed : float) -> void:
 		_rng = RandomNumberGenerator.new()
 	_rng.seed = int(rng_seed)
 
+func deactivate() -> void:
+	if _active:
+		_active = false
+		_active_draw = false
+		update()
+
 # -----------------------------------------------------------------------------
 # Handler Methods
 # -----------------------------------------------------------------------------
