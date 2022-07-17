@@ -1,0 +1,69 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Theme/base.theme" type="Theme" id=1]
+[ext_resource path="res://addons/eim/icons/refresh.svg" type="Texture" id=2]
+[ext_resource path="res://UI/StartGame/StartGame.gd" type="Script" id=3]
+
+[node name="StartGame" type="CenterContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 1 )
+script = ExtResource( 3 )
+
+[node name="Panel" type="PanelContainer" parent="."]
+margin_left = 789.0
+margin_top = 495.0
+margin_right = 1130.0
+margin_bottom = 585.0
+
+[node name="Controls" type="VBoxContainer" parent="Panel"]
+margin_left = 2.0
+margin_top = 2.0
+margin_right = 339.0
+margin_bottom = 88.0
+custom_constants/separation = 6
+
+[node name="Seed" type="HBoxContainer" parent="Panel/Controls"]
+margin_right = 337.0
+margin_bottom = 40.0
+
+[node name="Label" type="Label" parent="Panel/Controls/Seed"]
+margin_top = 6.0
+margin_right = 45.0
+margin_bottom = 33.0
+text = "Seed:  "
+
+[node name="LineEdit" type="LineEdit" parent="Panel/Controls/Seed"]
+margin_left = 49.0
+margin_right = 305.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 256, 0 )
+
+[node name="Refresh" type="Button" parent="Panel/Controls/Seed"]
+margin_left = 309.0
+margin_right = 337.0
+margin_bottom = 40.0
+focus_neighbour_left = NodePath(".")
+focus_neighbour_top = NodePath(".")
+focus_neighbour_right = NodePath(".")
+focus_neighbour_bottom = NodePath("../../Play")
+focus_next = NodePath("../../Play")
+focus_previous = NodePath("../../Play")
+icon = ExtResource( 2 )
+flat = true
+
+[node name="Play" type="Button" parent="Panel/Controls"]
+margin_top = 46.0
+margin_right = 337.0
+margin_bottom = 86.0
+focus_neighbour_left = NodePath(".")
+focus_neighbour_top = NodePath("../Seed/Refresh")
+focus_neighbour_right = NodePath(".")
+focus_neighbour_bottom = NodePath(".")
+focus_next = NodePath("../Seed/Refresh")
+focus_previous = NodePath("../Seed/Refresh")
+text = "    Play    "
+flat = true
+
+[connection signal="pressed" from="Panel/Controls/Seed/Refresh" to="." method="_on_Refresh_pressed"]
+[connection signal="pressed" from="Panel/Controls/Play" to="." method="_on_Play_pressed"]

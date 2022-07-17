@@ -61,6 +61,7 @@ func _ready() -> void:
 	Game.connect("subbeat", self, "_on_subbeat")
 	Game.connect("game_started", self, "_on_game_started")
 	Game.connect("game_finished", self, "_on_game_finished")
+	Game.connect("music_finished", self, "_on_music_finished")
 	Game.connect("glow_state_changed", self, "_on_glow_state_changed")
 
 func _process(delta : float) -> void:
@@ -199,13 +200,16 @@ func _on_heartbeat(beat : int = 0) -> void:
 	_PulseBackground()
 
 
+func _on_music_finished() -> void:
+	if _chunk_stack.size() > 0:
+		Game.end_game(true)
+
 func _on_game_started(game_seed : float) -> void:
 	clear()
 	fill_level(game_seed)
 	var music_count = Game.music_track_count()
 	if music_count > 0:
-		Game.play_track(0)
-		#Game.play_track(_rng.randi_range(0, music_count - 1))
+		Game.play_track(_rng.randi_range(0, music_count - 1))
 
 func _on_game_finished(win : bool, score : int) -> void:
 	_beattarget.deactivate()

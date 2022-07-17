@@ -1,0 +1,111 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://UI/Help/Help.gd" type="Script" id=1]
+[ext_resource path="res://Theme/base.theme" type="Theme" id=2]
+
+[sub_resource type="DynamicFontData" id=1]
+font_path = "res://Theme/Fonts/Generica Bold.otf"
+
+[sub_resource type="DynamicFont" id=2]
+size = 32
+use_mipmaps = true
+use_filter = true
+font_data = SubResource( 1 )
+
+[sub_resource type="DynamicFontData" id=3]
+font_path = "res://Theme/Fonts/Generica Bold.otf"
+
+[sub_resource type="DynamicFont" id=4]
+size = 20
+use_mipmaps = true
+use_filter = true
+font_data = SubResource( 3 )
+
+[node name="Help" type="CenterContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+margin_left = 442.0
+margin_top = 103.0
+margin_right = 1478.0
+margin_bottom = 976.0
+
+[node name="TabContainer" type="TabContainer" parent="PanelContainer"]
+margin_left = 2.0
+margin_top = 2.0
+margin_right = 1034.0
+margin_bottom = 871.0
+rect_min_size = Vector2( 1024, 800 )
+use_hidden_tabs_for_min_size = true
+
+[node name="Instructions" type="RichTextLabel" parent="PanelContainer/TabContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 65.0
+margin_right = -4.0
+margin_bottom = -4.0
+rect_min_size = Vector2( 1024, 800 )
+custom_colors/default_color = Color( 0.580392, 0.639216, 0.654902, 1 )
+custom_fonts/bold_font = SubResource( 2 )
+custom_fonts/normal_font = SubResource( 4 )
+bbcode_enabled = true
+bbcode_text = "[color=aqua][u][b]How to Play[/b][/u][/color]
+
+[color=yellow][b]DON'T FALL OFF THE SCREEN[/b][/color] .. Obviously, that defeats the purpose of the game. Ok, maybe it's not exactly obvious, but now it is!
+
+[color=yellow][b]Score some points[/b][/color]... There are two ways to score points.
+	[color=lime]1)[/color] Break some bricks, you bad ass!
+	[color=lime]2)[/color] Pass through a red square... yes, they're just plain old [color=red][b]red  squares[/b][/color].
+		Only appear for a few beats, then reappear somewhere else a few beats later. Be Fast!
+
+[color=yellow][b]Movement[/b][/color]... At your disposal, you have three abilities that can help you move about.
+	[color=lime]1)[/color] [color=fuchsia]Jump[/color]... I know, I know! you would never have expected that.
+		Well, I pulled out all the stops for this one! Have at it!
+	[color=lime]2)[/color] [color=fuchsia]Dash[/color]... Kinda like jumping, but you build up a little strength and, upon releasing the [color=fuchsia]Dash[/color] button,
+		you almost teleport in the direction you're pointing.
+	    If you're not pointing in a direction, you're not going to go anywhere.
+		If you hit a brick while doing a [color=fuchsia]Dash[/color], you'll do some damage to the brick... maybe even break it?
+	[color=lime]3)[/color] [color=fuchsia]Wall Grab[/color]. While in the air, if you move against a wall, you'll grab it. You're a bit sticky (hmmm... -_-)
+		so you'll need to jump again to get off."
+text = "How to Play
+
+DON'T FALL OFF THE SCREEN .. Obviously, that defeats the purpose of the game. Ok, maybe it's not exactly obvious, but now it is!
+
+Score some points... There are two ways to score points.
+	1) Break some bricks, you bad ass!
+	2) Pass through a red square... yes, they're just plain old red  squares.
+		Only appear for a few beats, then reappear somewhere else a few beats later. Be Fast!
+
+Movement... At your disposal, you have three abilities that can help you move about.
+	1) Jump... I know, I know! you would never have expected that.
+		Well, I pulled out all the stops for this one! Have at it!
+	2) Dash... Kinda like jumping, but you build up a little strength and, upon releasing the Dash button,
+		you almost teleport in the direction you're pointing.
+	    If you're not pointing in a direction, you're not going to go anywhere.
+		If you hit a brick while doing a Dash, you'll do some damage to the brick... maybe even break it?
+	3) Wall Grab. While in the air, if you move against a wall, you'll grab it. You're a bit sticky (hmmm... -_-)
+		so you'll need to jump again to get off."
+
+[node name="Attributions" type="RichTextLabel" parent="PanelContainer/TabContainer"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 65.0
+margin_right = -4.0
+margin_bottom = -4.0
+rect_min_size = Vector2( 0, 400 )
+custom_colors/default_color = Color( 0.580392, 0.639216, 0.654902, 1 )
+custom_fonts/bold_font = SubResource( 2 )
+custom_fonts/normal_font = SubResource( 4 )
+bbcode_enabled = true
+bbcode_text = "
+
+"
+text = "
+
+"

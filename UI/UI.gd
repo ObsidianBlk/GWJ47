@@ -11,6 +11,7 @@ signal game(restart)
 # Export Variables
 # -----------------------------------------------------------------------------
 export var initial_menu : String = ""
+export var endgame_menu : String = ""
 
 # -----------------------------------------------------------------------------
 # Variables
@@ -82,12 +83,13 @@ func close_ui() -> void:
 # -----------------------------------------------------------------------------
 # Handler Methods
 # -----------------------------------------------------------------------------
-func _on_enter_game() -> void:
-	randomize()
+func _on_enter_game(game_seed : float) -> void:
 	get_tree().paused = false
 	request_ui("")
-	Game.start_game(randf() * 10000.0)
+	Game.start_game(game_seed)
 
 func _on_game_finished(win : bool, _score : float) -> void:
 	if initial_menu != "":
 		request_ui(initial_menu)
+		if endgame_menu != "":
+			request_ui("EndGame")

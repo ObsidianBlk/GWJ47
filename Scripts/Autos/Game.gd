@@ -4,8 +4,11 @@ extends Node
 # -----------------------------------------------------------------------------
 # Signals
 # -----------------------------------------------------------------------------
-signal game_started()
+signal game_started(game_seed)
 signal game_finished(win, score)
+signal music_info_loaded()
+signal music_playing(info)
+signal music_finished()
 signal bus_volume_change(bus_id, volume)
 signal score_changed(score)
 signal beat(beat)
@@ -82,6 +85,7 @@ func _LoadMusicData() -> int:
 						break
 				if valid:
 					_music_tracks.append(item)
+		emit_signal("music_info_loaded")
 	return res
 
 # -----------------------------------------------------------------------------
@@ -171,8 +175,10 @@ func play_track(idx : int, beat_delay : int = 0) -> void:
 				_music_player.beats_per_minute = info.bpm
 				if beat_delay == 0:
 					_music_player.play()
+					emit_signal("music_playing", info)
 				else:
 					_music_player.play_beat_delayed(beat_delay)
+					emit_signal("music_playing", info)
 
 func is_music_playing() -> bool:
 	if _music_player != null:
@@ -232,12 +238,11 @@ func start_game(game_seed : float) -> void:
 		emit_signal("game_started", game_seed)
 
 func end_game(win : bool) -> void:
-	if is_game_active():
-		if _music_player != null and _music_player.playing:
-			_win_state = win
-			_music_player.stop()
-			_music_player.stream = null
-			#emit_signal("game_finished", win, _score)
+	if _music_player != null:
+		_win_state = win
+		_music_player.stop()
+		_music_player.stream = null
+		emit_signal("game_finished", win, _score)
 
 # -----------------------------------------------------------------------------
 # Handler Methods
@@ -248,4 +253,5 @@ func _on_beat(beat : int) -> void:
 func _on_music_finished() -> void:
 	_music_player.stop()
 	_music_player.stream = null
-	emit_signal("game_finished", _win_state, _score)
+	emit_signal("music_finished")
+	#emit_signal("game_finished", _win_state, _score)

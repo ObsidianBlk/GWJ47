@@ -77,10 +77,10 @@ func _RectIntersectsSurfaces(rect : Rect2) -> bool:
 				return true
 	return false
 
-func _GenerateSurface(pos : Vector2, size : Vector2, allow_immortal : bool = false, force_immortal : bool = false) -> bool:
+func _GenerateSurfaceNode(pos : Vector2, size : Vector2, allow_immortal : bool = false, force_immortal : bool = false) -> Node2D:
 	var surf : Node2D = SURFACE_OBJ.instance()
 	if pos.y < 0.0 or pos.y + size.y > height:
-		return false
+		return null
 	
 	surf.size = size
 	surf.position = pos + (size * 0.5)
@@ -89,8 +89,12 @@ func _GenerateSurface(pos : Vector2, size : Vector2, allow_immortal : bool = fal
 			surf.immortal = false if not force_immortal and _rng.randf() > 0.15 else true
 		surf.color = SURFACE_COLORS[_rng.randi_range(0, SURFACE_COLORS.size() - 1)]
 		add_child(surf)
-		return true
-	return false
+		return surf
+	return null
+
+# Didn't have time to do this in a better way.
+func _GenerateSurface(pos : Vector2, size : Vector2, allow_immortal : bool = false, force_immortal : bool = false) -> bool:
+	return _GenerateSurfaceNode(pos, size, allow_immortal, force_immortal) != null
 
 func _GenerateStair(pos : Vector2, size : Vector2, steps : int, dir : Vector2 = Vector2(1.0, 1.0)) -> void:
 	var cpos : Vector2 = pos
@@ -194,8 +198,20 @@ func generate(gen_seed : float, width : float, player_size : float, base : bool 
 		Rect2(2*qw, 0, qw, height), 0.33,
 	])
 	
+	var base_standin_surface : Node2D = null
 	if base:
 		_GenerateSurface(Vector2(0, height - player_size), Vector2(width, player_size), true, true)
+		var attempts : int = 10
+		for _i in range(attempts):
+			var region : Rect2 = region_dist.randv(_rng)
+			var size : Vector2 = Vector2(player_size * 1.25, player_size * 1.25)
+			var pos : Vector2 = _RandomPosition(region, size, true)
+			base_standin_surface = _GenerateSurfaceNode(pos, size)
+			if base_standin_surface != null:
+				break
+			if base_standin_surface == null:
+				printerr("failed to generate a player start")
+		
 	
 	var num_structures : int = _rng.randi_range(5, 20)
 	var structure_dist : RandomDistribution = RandomDistribution.new()
@@ -251,18 +267,13 @@ func generate(gen_seed : float, width : float, player_size : float, base : bool 
 			5: # Cuboid
 				pass
 	
-	if base:
-		var attempts : int = 10
-		for _i in range(attempts):
-			var region : Rect2 = region_dist.randv(_rng)
-			var size : Vector2 = Vector2(player_size, player_size)
-			var pos : Vector2 = _RandomPosition(region, size, true)
-			if not _RectIntersectsSurfaces(Rect2(pos, size)):
-				var pos2D : Position2D = Position2D.new()
-				add_child(pos2D)
-				pos2D.name = "Player_Start"
-				pos2D.position = pos + (size * 0.5)
-				break
+	if base_standin_surface != null:
+		var pos2D : Position2D = Position2D.new()
+		add_child(pos2D)
+		pos2D.name = "Player_Start"
+		pos2D.position = base_standin_surface.position
+		remove_child(base_standin_surface)
+		base_standin_surface.queue_free()
 
 func pulse() -> void:
 	emit_signal("pulsed")
