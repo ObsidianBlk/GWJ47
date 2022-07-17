@@ -13,12 +13,13 @@ signal pulsed()
 # -----------------------------------------------------------------------------
 const SURFACE_OBJ : PackedScene = preload("res://Objects/Surface/Surface.tscn")
 
+
 const SURFACE_COLORS : Array = [
-	Color.cadetblue,
-	Color.cornflower,
-	Color.darkcyan,
-	Color.darkseagreen,
-	Color.deepskyblue
+	Color.blueviolet,
+	Color.darkmagenta,
+	Color.webpurple,
+	Color.slateblue,
+	Color.rebeccapurple
 ]
 
 # -----------------------------------------------------------------------------

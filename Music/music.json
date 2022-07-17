@@ -1,6 +1,6 @@
 [
-  {"name":"Justin Time", "filepath":"res://Music/justintime.ogg", "http":"https://opengameart.org/content/justin-time", "author":"iamoneabe", "copyright":"CC0", "bpm":96},
-  {"name":"Midnight Explosion", "filepath":"res://Music/midnightexplosion.ogg", "http":"https://opengameart.org/content/midnight-explosion", "author":"iamoneabe", "copyright":"CC0", "bpm":60},
+  {"name":"Justin Time", "filepath":"res://Music/justintime.ogg", "http":"https://opengameart.org/content/justin-time", "author":"iamoneabe", "copyright":"CC0", "bpm":90},
+  {"name":"Midnight Explosion", "filepath":"res://Music/midnightexplosion.ogg", "http":"https://opengameart.org/content/midnight-explosion", "author":"iamoneabe", "copyright":"CC0", "bpm":120},
   {"name":"Midsummer", "filepath":"res://Music/midsummer.ogg", "http":"https://opengameart.org/content/midsummer", "author":"iamoneabe", "copyright":"CC0", "bpm":120},
   {"name":"In The Lobby", "filepath":"res://Music/in_the_lobby.ogg", "http":"https://opengameart.org/content/in-the-lobby", "author":"Umplix", "copyright":"CC0", "bpm":112},
   {"name":"I Have a Bad Feeling About This!", "filepath":"res://Music/i_have_a_bad_feeling_about_this.ogg", "http":"https://opengameart.org/content/i-have-a-bad-feeling-about-this", "author":"Pro Sensory", "copyright":"CC0", "bpm":100},

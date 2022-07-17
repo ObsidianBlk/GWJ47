@@ -142,7 +142,8 @@ func _UpdateBeatTimer(amount : float) -> void:
 # Public Methods
 # -----------------------------------------------------------------------------
 func beat_pulse() -> void:
-	_beat_timer = BEAT_TIME
+	if not immortal:
+		_beat_timer = BEAT_TIME
 
 
 func get_rect() -> Rect2:

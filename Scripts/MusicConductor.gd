@@ -50,7 +50,7 @@ func _physics_process(_delta : float) -> void:
 		_song_position = get_playback_position() + AudioServer.get_time_since_last_mix()
 		_song_position -= AudioServer.get_output_latency()
 		_song_beat = int(_song_position / _beat_seconds) + _beats_before_start
-		_report_beat()
+		call_deferred("_report_beat")
 
 
 # ------------------------------------------------------------------------------
@@ -58,8 +58,7 @@ func _physics_process(_delta : float) -> void:
 # ------------------------------------------------------------------------------
 func _report_beat() -> void:
 	if _song_beat != _last_song_beat:
-		call_deferred("emit_signal", "beat", _song_beat)
-		#emit_signal("beat", _song_beat)
+		emit_signal("beat", _song_beat)
 		_last_song_beat = _song_beat
 
 # ------------------------------------------------------------------------------
@@ -86,4 +85,5 @@ func _on_timeout() -> void:
 		_timer.start(dur)
 	else:
 		play()
+		_timer.disconnect("timeout", self, "_on_timeout")
 	_report_beat()

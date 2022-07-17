@@ -1,8 +1,13 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://Actors/Player/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Objects/Surface/Surface.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Levels/Level.gd" type="Script" id=3]
+[ext_resource path="res://Levels/BeatTarget.gd" type="Script" id=4]
+[ext_resource path="res://Levels/Audio/sfx_08a.ogg" type="AudioStream" id=5]
+
+[sub_resource type="RectangleShape2D" id=6]
+extents = Vector2( 64, 64 )
 
 [sub_resource type="Shader" id=1]
 resource_local_to_scene = true
@@ -162,6 +167,19 @@ glow_bicubic_upscale = true
 [node name="Level" type="Node2D"]
 script = ExtResource( 3 )
 
+[node name="BeatTarget" type="Node2D" parent="."]
+script = ExtResource( 4 )
+
+[node name="Area2D" type="Area2D" parent="BeatTarget"]
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BeatTarget/Area2D"]
+shape = SubResource( 6 )
+
+[node name="SFX" type="AudioStreamPlayer" parent="BeatTarget"]
+stream = ExtResource( 5 )
+bus = "SFX"
+
 [node name="StaticGeometry" type="Node2D" parent="."]
 
 [node name="Surface_Left" parent="StaticGeometry" instance=ExtResource( 2 )]
@@ -178,6 +196,8 @@ immortal = true
 
 [node name="Player" parent="." instance=ExtResource( 1 )]
 position = Vector2( -111, 189 )
+max_jump_height = 100.0
+half_jump_dist = 300.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource( 5 )
@@ -189,3 +209,6 @@ layer = -4
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color( 0, 0, 0, 1 )
+
+[connection signal="body_entered" from="BeatTarget/Area2D" to="BeatTarget" method="_on_body_entered"]
+[connection signal="body_exited" from="BeatTarget/Area2D" to="BeatTarget" method="_on_body_exited"]

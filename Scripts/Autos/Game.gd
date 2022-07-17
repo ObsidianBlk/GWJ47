@@ -9,6 +9,7 @@ signal game_finished(win, score)
 signal bus_volume_change(bus_id, volume)
 signal score_changed(score)
 signal beat(beat)
+signal subbeat()
 
 signal beat_pulse_state_changed(enabled)
 signal glow_state_changed(enabled, intensity)
@@ -167,6 +168,7 @@ func play_track(idx : int, beat_delay : int = 0) -> void:
 			var stream = load(info.filepath)
 			if stream:
 				_music_player.stream = stream
+				_music_player.beats_per_minute = info.bpm
 				if beat_delay == 0:
 					_music_player.play()
 				else:

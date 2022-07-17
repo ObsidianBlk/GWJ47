@@ -13,6 +13,8 @@ signal dash_updated(power_accum, power_max)
 enum STATE {Idle=0, Moving=1, WallGrab=2, Air=3, Jump=4, Dash=5}
 enum DASH {Charge=0, Release=1}
 
+const PULSE_TIME : float = 0.5
+
 # -----------------------------------------------------------------------------
 # Export Variables
 # -----------------------------------------------------------------------------
@@ -21,8 +23,8 @@ export var size : Vector2 = Vector2(64, 64)				setget set_size
 
 export var accel : float = 1000.0						setget set_accel
 export var max_speed : float = 1000.0					setget set_max_speed
-export var max_jump_height : float = 300.0				setget set_max_jump_height
-export var half_jump_dist : float = 500.0				setget set_half_jump_dist
+export var max_jump_height : float = 100.0				setget set_max_jump_height
+export var half_jump_dist : float = 300.0				setget set_half_jump_dist
 export var fall_multiplier : float = 2.0				setget set_fall_multiplier
 
 export var dash_strength : float = 400.0				setget set_dash_strength
@@ -46,6 +48,8 @@ var _dash_accum : float = 0.0
 
 var _size_dirty : bool = true
 var _state : int = STATE.Idle
+
+var _pulse_timer : float = -1.0
 
 
 # -----------------------------------------------------------------------------
@@ -73,7 +77,7 @@ func set_size(s : Vector2) -> void:
 
 func set_color(c : Color) -> void:
 	color = c
-	update()
+	modulate = color
 
 func set_max_jump_height(h : float) -> void:
 	if h > 0.0:
@@ -120,7 +124,7 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(-(size * 0.5), size), color, true, 1.0, false)
+	draw_rect(Rect2(-(size * 0.5), size), Color.white, true, 1.0, false)
 #	if _state == STATE.Dash and _dash_state == DASH.Charge:
 #		var pos = (-size * 0.5) + dashray_node.cast_to
 #		draw_rect(Rect2(pos, size), color, false, 4.0, true)
@@ -141,6 +145,9 @@ func _unhandled_input(event : InputEvent) -> void:
 func _physics_process(delta : float) -> void:
 	if Engine.editor_hint:
 		return
+	
+	if _pulse_timer > 0.0:
+		_pulse_timer -= delta
 	
 	if _size_dirty:
 		_size_dirty = false
@@ -193,7 +200,8 @@ func _ProcessDash(delta : float) -> void:
 				if dashray_node.is_colliding():
 					var obj = dashray_node.get_collider()
 					if obj and obj.has_method("hurt"):
-						obj.hurt(dash_strength)
+						var mult : float = 1.0 if _pulse_timer <= 0.0 else 4.0
+						obj.hurt(dash_strength * mult)
 					var pos = dashray_node.get_collision_point()
 					global_position = pos - (_direction.normalized() * (size * 0.5))
 				else:
@@ -210,7 +218,8 @@ func _ProcessDash(delta : float) -> void:
 
 func _ProcessVelocity_v(delta : float) -> void:
 	if _state == STATE.Jump and _velocity.y >= 0.0:
-		_velocity.y = -_jump_strength
+		var mult : float = 1.0 if _pulse_timer <= 0.0 else 2.0
+		_velocity.y = -(_jump_strength * mult)
 	elif not is_on_floor():
 		var multiplier = fall_multiplier if (_state == STATE.Air or _velocity.y >= 0.0) else 1.0
 		_velocity.y += _gravity * multiplier * delta
@@ -290,6 +299,9 @@ func is_in_air() -> bool:
 func drop_if_not_in_air(amount : float) -> void:
 	if not is_in_air():
 		position.y += amount
+
+func pulse() -> void:
+	_pulse_timer = PULSE_TIME
 
 # -----------------------------------------------------------------------------
 # Handler Methods

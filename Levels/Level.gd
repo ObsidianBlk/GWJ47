@@ -42,6 +42,7 @@ var _chunk_stack : Array = []
 onready var _player_node : KinematicBody2D = $Player
 
 onready var _env : WorldEnvironment = $WorldEnvironment
+onready var _beattarget : Node2D = $BeatTarget
 
 # -----------------------------------------------------------------------------
 # Setters
@@ -55,6 +56,7 @@ func _ready() -> void:
 		_rng = RandomNumberGenerator.new()
 	
 	Game.connect("beat", self, "_on_heartbeat")
+	Game.connect("subbeat", self, "_on_subbeat")
 	Game.connect("game_started", self, "_on_game_started")
 	Game.connect("glow_state_changed", self, "_on_glow_state_changed")
 
@@ -137,6 +139,7 @@ func fill_level(level_seed : float) -> void:
 	while latest.position.y >= 0.0:
 		_AddNewChunk()
 		latest = _GetLatestChunk()
+	_beattarget.set_seed(_rng.randf() * 10000.0)
 
 
 func clear() -> void:
@@ -158,6 +161,12 @@ func _on_glow_state_changed(glow_enabled : bool, intensity : float) -> void:
 	_env.environment.glow_intensity = intensity
 
 
+func _on_subbeat() -> void:
+	pass
+	#if Game.is_beat_pulse_enabled():
+	#	for chunk in _chunk_stack:
+	#		chunk.pulse()
+
 func _on_heartbeat(beat : int = 0) -> void:
 	var viewport_size : Vector2 = get_viewport().size
 	var latest : Chunk = _GetLatestChunk()
@@ -169,14 +178,14 @@ func _on_heartbeat(beat : int = 0) -> void:
 		if lead.position.y + DROP_RATE >= viewport_size.y:
 			lead = null
 			_DropLeadChunk()
-	var include_player : bool = not _player_node.is_in_air()
 	for chunk in _chunk_stack:
 		chunk.position.y += DROP_RATE
 		if Game.is_beat_pulse_enabled():
 			chunk.pulse()
 	#if not _player_node.is_in_air():
-	if include_player:
+	if not _player_node.is_in_air():
 		_player_node.drop_if_not_in_air(DROP_RATE)
+	_player_node.pulse()
 
 
 func _on_game_started(game_seed : float) -> void:
@@ -184,5 +193,6 @@ func _on_game_started(game_seed : float) -> void:
 	fill_level(game_seed)
 	var music_count = Game.music_track_count()
 	if music_count > 0:
-		Game.play_track(_rng.randi_range(0, music_count - 1))
+		Game.play_track(0)
+		#Game.play_track(_rng.randi_range(0, music_count - 1))
 
